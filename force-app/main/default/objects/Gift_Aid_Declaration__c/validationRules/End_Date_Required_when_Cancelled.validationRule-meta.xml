@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>End_Date_Required_when_Cancelled</fullName>
+    <active>true</active>
+    <description>This rule requires the end and cancellation date to be populated when the user enters a cancellation reason</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(TEXT(Cancellation_Reason__c))),
+    OR(
+        ISBLANK(Cancellation_Date__c),
+        ISBLANK(End_Date__c)
+    )
+)</errorConditionFormula>
+    <errorMessage>End Date and Cancellation Date must be added when adding Cancellation Reason</errorMessage>
+</ValidationRule>

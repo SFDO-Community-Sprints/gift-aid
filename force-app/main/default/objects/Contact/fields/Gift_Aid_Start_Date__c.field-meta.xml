@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Gift_Aid_Start_Date__c</fullName>
+    <inlineHelpText>Earliest Start Date from the related Active Gift Aid Declarations</inlineHelpText>
+    <label>Gift Aid Start Date</label>
+    <summarizedField>Gift_Aid_Declaration__c.Start_Date__c</summarizedField>
+    <summaryFilterItems>
+        <field>Gift_Aid_Declaration__c.IsActive__c</field>
+        <operation>equals</operation>
+        <value>True</value>
+    </summaryFilterItems>
+    <summaryForeignKey>Gift_Aid_Declaration__c.Contact__c</summaryForeignKey>
+    <summaryOperation>min</summaryOperation>
+    <type>Summary</type>
+</CustomField>

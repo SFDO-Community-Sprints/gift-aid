@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Gift_Aid_Eligibility__c</fullName>
+    <description>Use this field to define criteria for Gift Aid Eligibility, by updating the formula as required</description>
+    <formula>!ISBLANK(FirstName) 
+&amp;&amp;
+!ISBLANK(LastName)
+&amp;&amp;
+!ISBLANK(MailingStreet)
+&amp;&amp;
+!ISBLANK(MailingPostalCode)
+&amp;&amp;
+ (MailingCountry = &apos;United Kingdom&apos; || MailingCountry = &apos;UK&apos;)</formula>
+    <label>Gift Aid Eligibility</label>
+    <type>Checkbox</type>
+</CustomField>

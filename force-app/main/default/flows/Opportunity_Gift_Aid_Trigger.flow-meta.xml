@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <description>Change to create a history GA Record if required to store all times a Declaration is made</description>
+        <name>Check_if_Active_GA_in_Contact</name>
+        <label>Check if Active GA in Contact</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Already Active</defaultConnectorLabel>
+        <rules>
+            <name>No_Active_Gift_Aid_Status</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.npsp__Primary_Contact__r.Gift_Aid_Status__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Active</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Gift_Aid_Declaration</targetReference>
+            </connector>
+            <label>No Active Gift Aid Status</label>
+        </rules>
+    </decisions>
+    <description>Creates a Gift Aid Declaration for the Opp&apos;s Primary Contact</description>
+    <environments>Default</environments>
+    <interviewLabel>Opportunity - Gift Aid Trigger {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Opportunity - Gift Aid Trigger</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <description>Add other fields as required. eg. Declaration Source using Lead Source</description>
+        <name>Create_Gift_Aid_Declaration</name>
+        <label>Create Gift Aid Declaration</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Address_City__c</field>
+            <value>
+                <elementReference>$Record.npsp__Primary_Contact__r.MailingCity</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Address_Line_1__c</field>
+            <value>
+                <elementReference>$Record.npsp__Primary_Contact__r.MailingStreet</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Address_Post_Code__c</field>
+            <value>
+                <elementReference>$Record.npsp__Primary_Contact__r.MailingPostalCode</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Contact__c</field>
+            <value>
+                <elementReference>$Record.ContactId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Declaration_Date__c</field>
+            <value>
+                <elementReference>$Record.CloseDate</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Gift_Aid_Declaration__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Check_if_Active_GA_in_Contact</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Gift_Aid_Declared__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Gift_Aid_Claimed_Date__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>ContactId</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Opportunity</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

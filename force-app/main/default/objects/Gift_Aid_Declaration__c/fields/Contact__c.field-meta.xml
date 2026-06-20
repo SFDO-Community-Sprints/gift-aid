@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contact__c</fullName>
+    <description>Contact linked to the GAD</description>
+    <label>Contact</label>
+    <referenceTo>Contact</referenceTo>
+    <relationshipLabel>Gift_Aid_Declaration__c</relationshipLabel>
+    <relationshipName>Gift_Aid_Declaration_c</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>
