@@ -1,0 +1,9 @@
+# SFDX tooling & cache
+.sfdx/
+.sf/
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/

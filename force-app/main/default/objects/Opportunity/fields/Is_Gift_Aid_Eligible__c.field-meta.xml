@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Gift_Aid_Eligible__c</fullName>
+    <description>Configurable formula for evaluating whether a donation is eligible for claiming Gift Aid tax relief</description>
+    <formula>IsWon
+/*
+ &amp;&amp; RecordType.Name = &apos;NPSP_Default&apos; Use to include only certain Record Type as required
+*/
+/* 
+ &amp;&amp; Campaign.Type = &apos;myType&apos; Use to include only certain Campaign Type as required, eg. exclude Fundraising
+*/</formula>
+    <label>Gift Aid Eligible?</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cancellation_Reason__c</fullName>
+    <description>Reason the GAD was cancelled</description>
+    <label>Cancellation Reason</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Donor Requested Cancellation</fullName>
+                <default>false</default>
+                <label>Donor Requested Cancellation</label>
+            </value>
+            <value>
+                <fullName>No Longer Pays Enough UK Tax</fullName>
+                <default>false</default>
+                <label>No Longer Pays Enough UK Tax</label>
+            </value>
+            <value>
+                <fullName>No Longer UK Taxpayer</fullName>
+                <default>false</default>
+                <label>No Longer UK Taxpayer</label>
+            </value>
+            <value>
+                <fullName>Declaration Cancelled Within 30 Days</fullName>
+                <default>false</default>
+                <label>Declaration Cancelled Within 30 Days</label>
+            </value>
+            <value>
+                <fullName>Invalid Declaration</fullName>
+                <default>false</default>
+                <label>Invalid Declaration</label>
+            </value>
+            <value>
+                <fullName>Incomplete Declaration</fullName>
+                <default>false</default>
+                <label>Incomplete Declaration</label>
+            </value>
+            <value>
+                <fullName>Insufficient Evidence / No Audit Trail</fullName>
+                <default>false</default>
+                <label>Insufficient Evidence / No Audit Trail</label>
+            </value>
+            <value>
+                <fullName>Created in Error</fullName>
+                <default>false</default>
+                <label>Created in Error</label>
+            </value>
+            <value>
+                <fullName>Duplicate Declaration</fullName>
+                <default>false</default>
+                <label>Duplicate Declaration</label>
+            </value>
+            <value>
+                <fullName>Replaced by New Declaration</fullName>
+                <default>false</default>
+                <label>Replaced by New Declaration</label>
+            </value>
+            <value>
+                <fullName>Wrong Contact</fullName>
+                <default>false</default>
+                <label>Wrong Contact</label>
+            </value>
+            <value>
+                <fullName>Donor Deceased</fullName>
+                <default>false</default>
+                <label>Donor Deceased</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

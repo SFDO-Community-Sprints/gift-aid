@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Gift_Aid_Status__c</fullName>
+    <description>1. If GA Start Date is null, Status is Unknown
+2a. If the current date is between the GA Start &amp; End Dates, Status is Active
+2b. If the current date is after the GA Start Date &amp; the GA End Date is null, then Status is Inactive
+3. Else, Status is Ineligible</description>
+    <externalId>false</externalId>
+    <formula>IF (
+  ISBLANK (Gift_Aid_Start_Date__c),
+  &apos;Unknown&apos;,
+  IF (
+    TODAY () &gt;= Gift_Aid_Start_Date__c &amp;&amp; (ISBLANK (Gift_Aid_End_Date__c) || TODAY () &lt;= Gift_Aid_End_Date__c),
+    &apos;Active&apos;,
+    &apos;Inactive&apos;
+  )
+)</formula>
+    <inlineHelpText>Active, Inactive or Unknown, based on the related Gift Aid Declarations</inlineHelpText>
+    <label>Gift Aid Status</label>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>
