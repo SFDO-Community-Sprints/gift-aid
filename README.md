@@ -1,3 +1,6 @@
+These notes has been expanded into the Repository's Wiki:
+https://github.com/SFDO-Community-Sprints/gift-aid/wiki
+
 # Gift Aid Project
 Gift Aid is a UK government scheme that allows registered charities and Community Amateur Sports Clubs (CASCs) to reclaim basic-rate tax on donations made by UK taxpayers. It boosts the value of donations by 25% at no extra cost to the donor.
 
