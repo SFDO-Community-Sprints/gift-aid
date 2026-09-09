@@ -1,12 +1,23 @@
 {
   "packageDirectories": [
     {
+      "path": "force-app",
+      "default": true,
+      "package": "Gift Aid",
       "versionName": "ver 0.1",
       "versionNumber": "0.1.0.NEXT",
-      "path": "force-app",
-      "default": false,
-      "package": "Gift Aid",
-      "versionDescription": ""
+      "dependencies": [
+        { "package": "NPSP Contacts & Organizations" },
+        { "package": "NPSP Households" },
+        { "package": "NPSP Recurring Donations" },
+        { "package": "NPSP Relationships" },
+        { "package": "NPSP Affiliations" },
+        { "package": "Nonprofit Success Pack" }
+      ]
+    },
+    {
+      "path": "unpackaged",
+      "default": false
     }
   ],
   "name": "gift-aid",
@@ -14,6 +25,12 @@
   "sfdcLoginUrl": "https://login.salesforce.com",
   "sourceApiVersion": "66.0",
   "packageAliases": {
-    "Gift Aid": "0Hofj0000004H0fCAE"
+    "Gift Aid": "0Hofj0000004H0fCAE",
+    "NPSP Contacts & Organizations": "04t4w0000004ALTAA2",
+    "NPSP Households": "04t4w000000gfNKAAY",
+    "NPSP Recurring Donations": "04t4w000000gfNFAAY",
+    "NPSP Relationships": "04t4w000001A00cAAC",
+    "NPSP Affiliations": "04t4w000000tQ1HAAU",
+    "Nonprofit Success Pack": "04tKd000000el3CIAQ"
   }
 }
