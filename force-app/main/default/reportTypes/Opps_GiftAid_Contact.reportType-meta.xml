@@ -193,26 +193,6 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>TrackingNumber__c</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>OrderNumber__c</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>CurrentGenerators__c</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>MainCompetitors__c</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
             <field>npe01__Contact_Id_for_Role__c</field>
             <table>Opportunity</table>
         </columns>

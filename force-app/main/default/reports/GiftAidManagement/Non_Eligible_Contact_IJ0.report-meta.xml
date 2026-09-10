@@ -39,7 +39,7 @@
             <columnToColumn>false</columnToColumn>
             <isUnlocked>false</isUnlocked>
             <operator>equals</operator>
-            <value>0</value>
+            <value>False</value>
         </criteriaItems>
         <criteriaItems>
             <column>Contact.Gift_Aid_Status__c</column>

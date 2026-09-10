@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GiftAidClaimed_Formula__c</fullName>
+    <formula>!ISBLANK( Gift_Aid_Claimed_Date__c )</formula>
+    <label>Gift Aid Claimed</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
