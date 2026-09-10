@@ -193,11 +193,6 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>DeliveryInstallationStatus__c</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
             <field>TrackingNumber__c</field>
             <table>Opportunity</table>
         </columns>
