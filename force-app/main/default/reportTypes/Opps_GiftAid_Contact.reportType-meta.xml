@@ -771,11 +771,6 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>Contact.Languages__c</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
             <field>Contact.npo02__LargestAmount__c</field>
             <table>Opportunity</table>
         </columns>
