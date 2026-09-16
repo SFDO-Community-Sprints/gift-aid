@@ -7,12 +7,24 @@
       "versionName": "ver 0.1",
       "versionNumber": "0.1.0.NEXT",
       "dependencies": [
-        { "package": "NPSP Contacts & Organizations" },
-        { "package": "NPSP Households" },
-        { "package": "NPSP Recurring Donations" },
-        { "package": "NPSP Relationships" },
-        { "package": "NPSP Affiliations" },
-        { "package": "Nonprofit Success Pack" }
+        {
+          "package": "NPSP Contacts & Organizations"
+        },
+        {
+          "package": "NPSP Households"
+        },
+        {
+          "package": "NPSP Recurring Donations"
+        },
+        {
+          "package": "NPSP Relationships"
+        },
+        {
+          "package": "NPSP Affiliations"
+        },
+        {
+          "package": "Nonprofit Success Pack"
+        }
       ]
     },
     {
@@ -31,6 +43,7 @@
     "NPSP Recurring Donations": "04t4w000000gfNFAAY",
     "NPSP Relationships": "04t4w000001A00cAAC",
     "NPSP Affiliations": "04t4w000000tQ1HAAU",
-    "Nonprofit Success Pack": "04tKd000000el3CIAQ"
+    "Nonprofit Success Pack": "04tKd000000el3CIAQ",
+    "Gift Aid@0.1.0-2": "04tfj000000XLDlAAO"
   }
 }
