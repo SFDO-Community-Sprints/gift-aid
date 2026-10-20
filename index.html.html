@@ -1,0 +1,2519 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-sl-theme="reference">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gift Aid data flow: alternative model</title>
+<link rel="stylesheet" id="sl-fonts" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap">
+<style id="sl-css">
+/* Create Swimlane Process Maps: canvas styles. White background is the default (html[data-theme="light"]). */
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: light;
+  --page: #FFFFFF; --sheet: #FFFFFF;
+  --ink: #16191D; --ink-2: #3E454D; --muted: #5D646C; --rule: #D7DBE0; --rule-strong: #C5CCD3; --rule-soft: #E6E9ED;
+  --lane-a: #FFFFFF; --lane-b: #F8FAFC; --lane-label: #F3F5F8;
+  --primary: #1F4E79; --primary-tint: #EEF3F8; --primary-sub: #D3E2F1; --on-primary: #FFFFFF; --primary-hover: #16395A;
+  --secondary: #8A5300; --secondary-tint: #FFF6E5; --secondary-border: #D9A441; --secondary-ink: #5A3A00;
+  --system-bg: #F5F6F8; --system-border: #7C858E; --note-bg: #FAFAF7;
+  --edge: #4B525B; --danger: #B42318; --danger-tint: #FDECEA; --success: #1E7A4F; --success-tint: #E7F5EE;
+  --focus: #1F6FEB;
+  --font: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, sans-serif;
+  --font-head: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, sans-serif;
+  --mono: 'IBM Plex Mono', Menlo, Consolas, monospace;
+}
+html[data-sl-theme="cloudmuscle"] {
+  --ink: #0B0E24; --ink-2: #2B2F45; --muted: #555A70; --rule: #D9DBE3; --rule-strong: #C3C6D2;
+  --lane-b: #F8F9FB; --lane-label: #F4F5F7;
+  --primary: #101C89; --primary-tint: #ECEEFA; --primary-sub: #D5D9F5; --primary-hover: #0B0E24;
+  --secondary: #B83100; --secondary-tint: #FFEDE6; --secondary-border: #FF490F; --secondary-ink: #7A2000;
+  --system-bg: #F4F5F7; --system-border: #7A7F93; --edge: #2B2F45;
+  --font: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+}
+/* Dark tokens exist only so a viewer that forces dark mode stays readable; the canvas itself defaults to white. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="force-dark-disabled"] {
+    color-scheme: dark;
+    --page: #15181C; --sheet: #15181C; --ink: #E8EAED; --ink-2: #C9CDD2; --muted: #A3A9B0; --rule: #3A4048; --rule-strong: #4A515A; --rule-soft: #2C3138;
+    --lane-a: #15181C; --lane-b: #1B1F24; --lane-label: #20252B;
+    --primary: #7FB0E0; --primary-tint: #1D2C3B; --primary-sub: #23384E; --on-primary: #0E1620; --primary-hover: #A6C8EA;
+    --secondary: #E0A85A; --secondary-tint: #33270F; --secondary-border: #8C6A2E; --secondary-ink: #F2D3A3;
+    --system-bg: #1E2228; --system-border: #6B737C; --note-bg: #1E2228; --edge: #B4BAC1;
+  }
+}
+:root[data-theme="force-dark-disabled"] {
+  color-scheme: dark;
+  --page: #15181C; --sheet: #15181C; --ink: #E8EAED; --ink-2: #C9CDD2; --muted: #A3A9B0; --rule: #3A4048; --rule-strong: #4A515A; --rule-soft: #2C3138;
+  --lane-a: #15181C; --lane-b: #1B1F24; --lane-label: #20252B;
+  --primary: #7FB0E0; --primary-tint: #1D2C3B; --primary-sub: #23384E; --on-primary: #0E1620; --primary-hover: #A6C8EA;
+  --secondary: #E0A85A; --secondary-tint: #33270F; --secondary-border: #8C6A2E; --secondary-ink: #F2D3A3;
+  --system-bg: #1E2228; --system-border: #6B737C; --note-bg: #1E2228; --edge: #B4BAC1;
+}
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 64px); }
+html, body { margin: 0; background: var(--page); color: var(--ink); }
+body { font-family: var(--font); font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+a { color: var(--primary); }
+a:hover { color: var(--primary-hover); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.sl-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* sheet */
+.sl-sheet { max-width: var(--sheet-w, 1400px); margin: 0 auto; padding: 32px 32px 48px; background: var(--sheet); }
+
+/* masthead */
+.sl-mast { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px 40px; border-bottom: 3px solid var(--ink); padding-bottom: 16px; }
+.sl-mast-text { display: flex; flex-direction: column; gap: 6px; max-width: 920px; }
+.sl-overline { font-size: 13px; line-height: 18px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); font-weight: 600; }
+.sl-title { margin: 0; font-family: var(--font-head); font-size: 34px; line-height: 40px; font-weight: 600; letter-spacing: -0.01em; }
+html[data-sl-theme="cloudmuscle"] .sl-title { text-transform: uppercase; font-weight: 800; letter-spacing: 0.01em; }
+.sl-subtitle { margin: 0; font-size: 15px; line-height: 22px; color: var(--muted); }
+.sl-meta { font-size: 12px; color: var(--muted); }
+
+/* legend */
+.sl-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font-size: 12px; line-height: 16px; color: var(--ink-2); max-width: 720px; }
+.sl-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.sl-sw { display: inline-block; width: 24px; height: 15px; border-radius: 3px; border: 1px solid var(--rule-strong); background: #FFFFFF; flex: none; }
+.sl-sw.v-key { border: 1.5px solid var(--primary); }
+.sl-sw.v-core { background: var(--primary); border-color: var(--primary); }
+.sl-sw.v-system { background: var(--system-bg); border: 1px dashed var(--system-border); }
+.sl-sw.v-external { background: var(--secondary-tint); border-color: var(--secondary-border); }
+.sl-sw.v-decision { border: 1.5px solid var(--secondary); }
+.sl-sw.v-note { background: var(--note-bg); border: 1px dotted var(--muted); }
+.sl-sw-line { display: inline-block; width: 28px; height: 0; border-top: 1.5px solid var(--edge); flex: none; }
+.sl-sw-line.k-data { border-top-color: var(--primary); }
+.sl-sw-line.k-handoff { border-top-width: 2.5px; }
+.sl-sw-line.k-loop { border-top: 1.5px dashed var(--secondary); }
+.sl-sw-line.k-optional { border-top: 2px dotted var(--edge); }
+
+/* toolbar */
+.sl-toolbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 0; margin: 12px 0 8px; background: var(--sheet); border-bottom: 1px solid var(--rule); }
+.sl-tb-group { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.sl-tb-label { font-size: 12px; color: var(--muted); margin-right: 2px; }
+.sl-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 11px; border: 1px solid var(--rule-strong); border-radius: 6px; background: var(--sheet); color: var(--ink); font-size: 13px; cursor: pointer; }
+.sl-btn:hover { border-color: var(--ink-2); }
+.sl-btn[aria-pressed="true"] { background: var(--primary-tint); border-color: var(--primary); color: var(--primary); }
+.sl-sep { width: 1px; height: 22px; background: var(--rule); margin: 0 4px; }
+.sl-search { min-height: 32px; padding: 4px 10px; border: 1px solid var(--rule-strong); border-radius: 6px; font: inherit; font-size: 13px; width: 180px; background: var(--sheet); color: var(--ink); }
+.sl-select { min-height: 32px; padding: 4px 8px; border: 1px solid var(--rule-strong); border-radius: 6px; font: inherit; font-size: 13px; background: var(--sheet); color: var(--ink); }
+
+/* artifact capability controls */
+.sl-tb-caps { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.sl-tb-caps:empty { display: none; }
+.sl-menu-wrap { position: relative; display: inline-flex; }
+.sl-menu { position: absolute; top: calc(100% + 4px); right: 0; z-index: 30; min-width: 250px; padding: 4px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.10); }
+.sl-menu[hidden] { display: none; }
+.sl-menu button { display: flex; flex-direction: column; align-items: flex-start; width: 100%; padding: 7px 10px; border: 0; border-radius: 6px; background: transparent; text-align: left; cursor: pointer; }
+.sl-menu button:hover, .sl-menu button:focus-visible { background: var(--primary-tint); }
+.sl-menu b { font-size: 13px; font-weight: 600; }
+.sl-menu span { font-size: 12px; color: var(--muted); }
+.sl-toast { position: fixed; z-index: 70; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translateX(-50%); max-width: min(520px, 90vw); padding: 9px 14px; border-radius: 8px; background: var(--ink); color: var(--page); font-size: 13px; }
+.sl-toast[hidden] { display: none; }
+.sl-panel-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.sl-panel-actions:empty { display: none; }
+.sl-ask-input, .sl-field input, .sl-field textarea, .sl-field select { width: 100%; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid var(--rule-strong); border-radius: 6px; background: var(--sheet); color: var(--ink); }
+.sl-ask-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.sl-ask-err { font-size: 13px; color: var(--danger); }
+.sl-ask-out { margin-top: 14px; white-space: pre-wrap; font-size: 14px; line-height: 21px; }
+.sl-field { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.sl-check-by { font-size: 11px; color: var(--muted); margin-left: 4px; }
+
+/* views, ribbon, walkthrough */
+.sl-view-title { font-size: 12px; font-weight: 600; color: var(--muted); margin: 4px 0 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sl-view-title:empty { display: none; }
+.sl-ribbon-seg { position: absolute; z-index: 1; display: flex; align-items: center; justify-content: center; padding: 0 10px; border-radius: 12px; border: 1px solid var(--primary); background: var(--primary-tint); color: var(--primary); font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; }
+.sl-ribbon-seg span { overflow: hidden; text-overflow: ellipsis; }
+.sl-ribbon-seg.t-secondary { border-color: var(--secondary-border); background: var(--secondary-tint); color: var(--secondary-ink); }
+.sl-ribbon-seg.t-neutral { border-color: var(--rule-strong); background: var(--sheet); color: var(--ink-2); }
+.sl-ribbon-seg.t-success { border-color: var(--success); background: var(--success-tint); color: var(--success); }
+.sl-ribbon-v { writing-mode: vertical-rl; padding: 10px 0; }
+.sl-ribbon-label { position: absolute; display: flex; align-items: center; padding: 0 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--lane-label); border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule-soft); }
+.sl-sw.sl-sw-ribbon { border-radius: 8px; background: var(--primary-tint); border-color: var(--primary); }
+.sl-stage.sl-stage-on { background: var(--primary-tint); }
+.sl-stage.sl-stage-on .sl-stage-label { color: var(--primary); }
+.sl-tour { position: fixed; z-index: 45; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); width: min(840px, 94vw); max-height: 44vh; overflow-y: auto; padding: 12px 16px; background: var(--sheet); border: 1px solid var(--rule-strong); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.14); }
+.sl-tour[hidden] { display: none; }
+.sl-tour-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.sl-tour-count { font-size: 12px; color: var(--muted); }
+.sl-tour-head b { font-size: 15px; }
+.sl-tour-nav { margin-left: auto; display: inline-flex; gap: 6px; }
+.sl-tour-text { margin: 6px 0; font-size: 13.5px; line-height: 20px; }
+.sl-tour-rows { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--rule-soft); }
+.sl-btn:disabled { color: var(--muted); border-color: var(--rule); cursor: default; }
+.sl-btn-sm { min-height: 28px; font-size: 12px; padding: 2px 9px; }
+.sl-link { border: 0; background: none; padding: 0 2px; color: var(--primary); font-size: 12px; font-weight: 500; text-decoration: underline; cursor: pointer; }
+.sl-elabel-q { display: inline-block; margin-right: 3px; color: #7A4A00; font-weight: 700; }
+.sl-chip-status { background: var(--primary-tint); border-color: var(--primary); color: var(--primary); }
+.sl-dl { margin: 0; }
+.sl-dl dt { margin-top: 6px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.sl-dl dd { margin: 1px 0 0; font-size: 13px; line-height: 18px; }
+
+/* section types: highlights, compare, faq, marked lists */
+.sl-sections-top { margin: 4px 0 14px; display: block; }
+.sl-sections-top .sl-section { border-top: 0; padding-top: 0; margin-bottom: 10px; }
+.sl-sections-top .sl-sec-head { display: none; }
+.sl-highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); border: 1px solid var(--primary-sub); border-radius: 8px; overflow: hidden; background: var(--primary-tint); }
+.sl-hl { display: flex; flex-direction: column; gap: 3px; padding: 10px 14px; border-right: 1px solid var(--primary-sub); }
+.sl-hl:last-child { border-right: 0; }
+.sl-hl b { font-size: 14px; line-height: 19px; color: var(--primary); }
+.sl-hl span { font-size: 12.5px; line-height: 17px; color: var(--ink-2); }
+.sl-hl.t-secondary { background: var(--secondary-tint); }
+.sl-hl.t-secondary b { color: var(--secondary-ink); }
+.sl-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.sl-cmp-col { display: flex; flex-direction: column; border: 1px solid var(--secondary-border); border-radius: 8px; overflow: hidden; }
+.sl-cmp-head { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--secondary-tint); color: var(--secondary-ink); font-size: 14px; font-weight: 600; }
+.sl-cmp-col .sl-dl { padding: 4px 12px 8px; }
+.sl-cmp-note { padding: 0 12px 6px; font-size: 12px; color: var(--muted); }
+.sl-cmp-col .sl-btn-sm { margin: auto 12px 12px; align-self: flex-start; }
+.sl-faq { margin: 0 0 6px; border: 1px solid var(--rule); border-radius: 6px; }
+.sl-faq summary { padding: 8px 12px; font-weight: 500; cursor: pointer; }
+.sl-faq > div { padding: 0 12px 8px; }
+.sl-faq p { margin: 4px 0; }
+.sl-list.m-check, .sl-list.m-warn { list-style: none; padding-left: 0; }
+.sl-list.m-check li::before { content: "✓"; margin-right: 8px; color: var(--primary); font-weight: 700; }
+.sl-list.m-warn li::before { content: "!"; display: inline-block; width: 16px; height: 16px; margin-right: 8px; border-radius: 8px; border: 1px solid var(--secondary-border); background: var(--secondary-tint); color: var(--secondary-ink); font-size: 11px; font-weight: 700; line-height: 14px; text-align: center; }
+.sl-print-views .sl-view-title { margin-top: 24px; }
+
+/* diagram scroller (wide content scrolls inside its own box, never the page) */
+.sl-scroll { overflow-x: auto; overflow-y: hidden; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); }
+.sl-zoom { position: relative; transform-origin: 0 0; }
+.sl-diagram { position: relative; }
+.sl-band { position: absolute; border-bottom: 1px solid var(--rule-soft); }
+.sl-band-a { background: var(--lane-a); }
+.sl-band-b { background: var(--lane-b); }
+.sl-vertical .sl-band { border-bottom: 0; border-right: 1px solid var(--rule-soft); }
+.sl-edges { position: absolute; left: 0; top: 0; overflow: visible; }
+.sl-guide { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 3 5; }
+.sl-edge-line { fill: none; stroke: var(--edge); stroke-width: 1.5; }
+.sl-edge-hit { fill: none; stroke: transparent; stroke-width: 12; pointer-events: stroke; }
+.sl-edge-data .sl-edge-line { stroke: var(--primary); }
+.sl-edge-handoff .sl-edge-line { stroke-width: 2.25; }
+.sl-edge-loop .sl-edge-line { stroke: var(--secondary); stroke-dasharray: 6 4; }
+.sl-edge-optional .sl-edge-line { stroke-dasharray: 2 4; }
+.sl-arrow { fill: var(--edge); }
+.sl-arrow-data { fill: var(--primary); }
+.sl-arrow-loop { fill: var(--secondary); }
+.sl-arrow-hot { fill: var(--focus); }
+.sl-edge.sl-hot .sl-edge-line { stroke: var(--focus); stroke-width: 2.5; }
+.sl-edge:hover .sl-edge-line { stroke-width: 2.5; }
+.sl-edge.sl-dim .sl-edge-line { stroke: var(--rule-strong); }
+.sl-edge.sl-dim .sl-arrow { fill: var(--rule-strong); }
+
+/* stage headers */
+.sl-stage { position: absolute; display: flex; gap: 8px; align-items: flex-start; padding: 10px 10px 0 12px; border-bottom: 2px solid var(--ink); background: var(--sheet); }
+.sl-stage-v { border-bottom: 0; border-right: 2px solid var(--ink); padding: 12px 10px; }
+.sl-stage-num { flex: none; width: 22px; height: 22px; border-radius: 11px; background: var(--primary); color: var(--on-primary); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.sl-stage-text { display: flex; flex-direction: column; min-width: 0; }
+.sl-stage-label { font-size: 13px; line-height: 17px; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.sl-stage-desc { font-size: 12px; line-height: 15px; color: var(--muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+/* corner hint */
+.sl-corner { position: absolute; z-index: 7; display: flex; align-items: flex-end; padding: 0 12px 10px; font-size: 11px; line-height: 15px; color: var(--muted); background: var(--sheet); border-bottom: 2px solid var(--ink); border-right: 1px solid var(--rule); }
+
+/* lane labels */
+.sl-lanecol { position: sticky; left: 0; z-index: 6; pointer-events: none; }
+.sl-lanecol > * { pointer-events: auto; }
+.sl-lane { position: absolute; padding: 10px 10px 8px 12px; background: var(--lane-label); border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule-soft); overflow: hidden; }
+.sl-lane-v { border-right: 1px solid var(--rule-soft); border-bottom: 2px solid var(--ink); }
+.sl-lane-head { display: flex; align-items: flex-start; gap: 6px; }
+.sl-lane-label { font-size: 13px; line-height: 17px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); }
+html[data-sl-theme="cloudmuscle"] .sl-lane-label { font-family: var(--font-head); font-size: 15px; font-weight: 800; letter-spacing: 0.03em; }
+.sl-lane-desc { font-size: 12px; line-height: 16px; color: var(--muted); margin-top: 3px; }
+.sl-lane-dim { display: inline-block; margin-top: 5px; font-size: 11px; line-height: 15px; padding: 0 6px; border-radius: 3px; background: var(--sheet); border: 1px solid var(--rule); color: var(--muted); }
+.sl-lane-toggle { flex: none; width: 22px; height: 22px; margin: -2px 0 0 -4px; padding: 0; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--ink-2); cursor: pointer; font-size: 12px; line-height: 1; }
+.sl-lane-toggle:hover { border-color: var(--rule-strong); background: var(--sheet); }
+
+/* cards: fixed size and position; hover and selection never move them */
+.sl-card { position: absolute; padding: 9px 10px; border: 1px solid var(--rule-strong); border-radius: 6px; background: #FFFFFF; color: var(--ink); cursor: pointer; overflow: visible; transition: none; }
+.sl-card:hover { box-shadow: 0 0 0 2px var(--primary-sub); }
+.sl-card.sl-selected { box-shadow: 0 0 0 3px var(--focus); }
+.sl-card.sl-linked { box-shadow: 0 0 0 2px var(--focus); }
+.sl-card-title { font-size: 13px; line-height: 17px; font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; word-break: break-word; }
+.sl-card-title.sl-lines-1 { -webkit-line-clamp: 1; height: 17px; }
+.sl-card-title.sl-lines-2 { -webkit-line-clamp: 2; height: 34px; }
+.sl-card-title.sl-has-check { padding-right: 20px; }
+.sl-card-sub { margin-top: 2px; height: 15px; font-family: var(--mono); font-size: 12px; line-height: 15px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sl-card-tags { margin-top: 5px; display: flex; gap: 4px; height: 18px; overflow: hidden; }
+.sl-tag { font-size: 11px; line-height: 16px; padding: 0 5px; border-radius: 3px; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.sl-tag-more { flex: none; }
+.sl-diamond { color: var(--secondary); margin-right: 5px; font-size: 11px; }
+.v-key { border: 1.5px solid var(--primary); }
+.v-core { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.v-core .sl-card-sub { color: var(--primary-sub); }
+.v-core .sl-tag { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.35); color: var(--on-primary); }
+.v-system { background: var(--system-bg); border: 1px dashed var(--system-border); }
+.v-external { background: var(--secondary-tint); border-color: var(--secondary-border); color: var(--secondary-ink); }
+.v-external .sl-card-sub { color: var(--secondary); }
+.v-decision { border: 1.5px solid var(--secondary); }
+.v-note { background: var(--note-bg); border: 1px dotted var(--muted); font-style: italic; }
+.sl-card.sl-dim { opacity: 1; background: var(--sheet); border-style: dashed; border-color: var(--rule); color: var(--muted); box-shadow: none; }
+.sl-card.sl-dim .sl-card-sub, .sl-card.sl-dim .sl-tag { color: var(--muted); background: transparent; border-color: var(--rule); }
+.sl-card.sl-match { box-shadow: 0 0 0 3px var(--secondary-border); }
+.sl-badges { position: absolute; top: -9px; right: 8px; display: flex; gap: 4px; }
+.sl-badge { min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; font-size: 11px; line-height: 16px; font-weight: 600; text-align: center; font-style: normal; }
+.sl-badge-branch { background: var(--secondary-tint); border: 1px solid var(--secondary-border); color: var(--secondary-ink); }
+.sl-badge-q { background: #FFF0D6; border: 1px solid var(--secondary-border); color: #7A4A00; }
+.sl-card-check { position: absolute; top: 7px; right: 7px; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
+.sl-card-check input { width: 15px; height: 15px; margin: 0; accent-color: var(--primary); cursor: pointer; }
+.sl-pill { position: absolute; border: 1px solid var(--primary); border-radius: 12px; background: var(--primary-tint); color: var(--primary); font-size: 12px; font-weight: 500; cursor: pointer; padding: 0 8px; }
+
+/* edge labels */
+.sl-elabel { position: absolute; transform: translate(-50%, -50%); padding: 1px 6px; font-size: 12px; line-height: 15px; color: var(--ink-2); background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; text-align: center; z-index: 2; pointer-events: none; }
+.sl-elabel.sl-al-left { transform: translate(0, -50%); text-align: left; }
+.sl-elabel.sl-al-right { transform: translate(-100%, -50%); text-align: right; }
+.sl-elabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sl-elabel.sl-dim { color: var(--muted); border-color: var(--rule-soft); }
+.sl-elabel.sl-hot { border-color: var(--focus); color: var(--ink); }
+.sl-elabel-dot { width: 18px; height: 18px; padding: 0; border-radius: 9px; font-size: 11px; line-height: 16px; text-overflow: clip; font-weight: 600; color: var(--primary); border-color: var(--primary); pointer-events: auto; cursor: help; }
+.sl-elabel-branch { display: inline-block; margin-right: 4px; padding: 0 4px; border-radius: 3px; background: var(--secondary-tint); color: var(--secondary-ink); font-weight: 600; }
+.sl-caption { position: absolute; font-size: 12px; line-height: 16px; color: var(--primary); font-weight: 500; background: var(--sheet); padding: 1px 6px; border-radius: 4px; z-index: 2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* help dots and tooltip */
+.sl-help-dot { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 8px; border: 1px solid var(--rule-strong); font-size: 11px; font-weight: 600; color: var(--muted); background: var(--sheet); cursor: help; font-style: normal; }
+.sl-tip { position: fixed; z-index: 60; max-width: 300px; padding: 8px 10px; border-radius: 6px; background: var(--ink); color: var(--page); font-size: 12px; line-height: 17px; pointer-events: none; }
+.sl-tip[hidden] { display: none; }
+
+/* detail panel: fixed overlay, the diagram never reflows */
+.sl-panel { position: fixed; z-index: 50; top: 0; right: 0; bottom: 0; width: min(400px, 100vw); padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px calc(env(safe-area-inset-bottom, 0px) + 20px); background: var(--sheet); border-left: 1px solid var(--rule); box-shadow: -8px 0 24px rgba(0,0,0,0.08); overflow-y: auto; }
+.sl-panel[hidden] { display: none; }
+.sl-panel-close { float: right; }
+.sl-panel h2 { margin: 4px 0 2px; font-size: 18px; line-height: 24px; }
+.sl-panel .sl-kv { margin: 14px 0 0; }
+.sl-panel .sl-k { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.sl-panel ul { margin: 0; padding-left: 18px; }
+.sl-panel li { margin: 2px 0; }
+.sl-chip { display: inline-block; font-size: 12px; padding: 1px 7px; border-radius: 4px; border: 1px solid var(--rule); margin: 0 4px 4px 0; }
+.sl-mono { font-family: var(--mono); font-size: 12px; }
+@media (max-width: 640px) {
+  .sl-panel { top: auto; width: 100vw; max-height: 70vh; border-left: 0; border-top: 1px solid var(--rule); }
+  .sl-sheet { padding: 20px 16px 40px; }
+  .sl-title { font-size: 26px; line-height: 32px; }
+}
+
+/* sections */
+.sl-sections { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px 28px; margin-top: 28px; align-items: start; }
+.sl-section { min-width: 0; border-top: 2px solid var(--ink); padding-top: 10px; }
+.sl-section.sl-span-full { grid-column: 1 / -1; }
+.sl-sec-head { display: flex; align-items: center; gap: 8px; }
+.sl-sec-title { margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; flex: 1; }
+.sl-sec-btn { border: 1px solid transparent; background: transparent; border-radius: 4px; color: var(--muted); font-size: 12px; padding: 2px 6px; cursor: pointer; }
+.sl-sec-btn:hover { border-color: var(--rule-strong); color: var(--ink); }
+.sl-sec-body { margin-top: 8px; font-size: 13px; line-height: 19px; }
+.sl-sec-intro { color: var(--muted); margin: 0 0 8px; }
+.sl-placeholder { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; border: 1px dashed var(--rule-strong); border-radius: 6px; color: var(--muted); font-size: 12px; }
+.sl-ledger { display: grid; grid-template-columns: repeat(auto-fit, minmax(540px, 1fr)); column-gap: 36px; }
+.sl-ledger-step { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--rule-soft); }
+.sl-ledger-num { width: 22px; height: 22px; border-radius: 11px; background: var(--primary); color: var(--on-primary); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+.sl-ledger-num.sl-alt { background: var(--secondary); }
+.sl-ledger-title { font-weight: 600; }
+.sl-ledger-records { color: var(--muted); font-size: 12px; }
+.sl-ledger-row { display: grid; grid-template-columns: minmax(0, 1.1fr) 16px minmax(0, 1fr) minmax(0, 0.9fr); gap: 6px; font-size: 12.5px; line-height: 17px; padding: 2px 0; }
+.sl-ledger-row .sl-to { font-weight: 500; }
+.sl-ledger-row .sl-how { color: var(--muted); }
+.sl-list { margin: 0; padding-left: 18px; }
+.sl-list li { margin: 3px 0; }
+.sl-lead { font-weight: 600; }
+.sl-table-wrap { overflow-x: auto; }
+.sl-table { width: 100%; border-collapse: collapse; font-size: 12.5px; line-height: 17px; }
+.sl-table th, .sl-table td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--rule-soft); }
+.sl-table th { background: var(--lane-label); font-weight: 600; border-bottom: 1px solid var(--rule-strong); }
+.sl-callout { padding: 10px 12px; border-radius: 6px; background: var(--primary-tint); color: var(--ink); }
+.sl-callout.t-warning { background: var(--secondary-tint); color: var(--secondary-ink); }
+.sl-callout.t-danger { background: var(--danger-tint); color: var(--danger); }
+.sl-callout.t-success { background: var(--success-tint); color: var(--success); }
+.sl-check-item { display: flex; gap: 8px; align-items: flex-start; padding: 3px 0; }
+.sl-check-item input { margin-top: 3px; accent-color: var(--primary); }
+.sl-check-item.sl-done span { color: var(--muted); text-decoration: line-through; }
+.sl-scope-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
+.sl-glossary dt { font-weight: 600; margin-top: 6px; }
+.sl-glossary dd { margin: 0 0 4px; color: var(--ink-2); }
+
+/* footer */
+.sl-foot { margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--ink); display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px 28px; font-size: 12px; line-height: 17px; color: var(--ink-2); }
+.sl-foot h3 { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.sl-foot ol, .sl-foot ul { margin: 0; padding-left: 18px; }
+.sl-sup { font-size: 10px; vertical-align: super; line-height: 0; margin-left: 1px; }
+.sl-credit { margin-top: 10px; font-size: 11px; color: var(--muted); }
+
+/* paginated formats */
+.sl-pages { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.sl-page { position: relative; background: #FFFFFF; box-shadow: 0 1px 4px rgba(0,0,0,0.12); overflow: hidden; flex: none; }
+.sl-page-inner { position: absolute; inset: 0; }
+.sl-page-head { position: absolute; left: var(--pm); right: var(--pm); top: calc(var(--pm) - 6px); display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--ink); padding-bottom: 6px; font-size: 12px; color: var(--muted); }
+.sl-page-head b { color: var(--ink); font-size: 14px; }
+.sl-page-view { position: absolute; overflow: hidden; }
+.sl-page-cont { position: absolute; font-size: 10px; font-weight: 600; color: var(--primary); background: #FFFFFF; border: 1px solid var(--primary); border-radius: 8px; padding: 0 4px; line-height: 14px; z-index: 5; white-space: nowrap; }
+.sl-page-flow { position: absolute; left: var(--pm); right: var(--pm); bottom: var(--pm); overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+@media print {
+  .sl-toolbar, .sl-panel, .sl-tip, .sl-tour, .sl-toast, .sl-link, .sl-btn-sm, .sl-sec-btn, .sl-lane-toggle, .sl-placeholder button { display: none !important; }
+  .sl-scroll { overflow: visible; border: 0; }
+  .sl-sheet { max-width: none; padding: 0; }
+  .sl-pages { gap: 0; }
+  .sl-page { box-shadow: none; break-after: page; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* Proposed (new) objects and fields */
+:root { --new: #0F766E; --new-tint: #EAF6F4; --new-border: #0F766E; --new-ink: #0F766E; }
+.sl-card.sl-lane-period, .sl-card.sl-lane-claim { background: var(--new-tint); border-color: var(--new); border-width: 2px; color: var(--ink); }
+.sl-tag.sl-tag-new { font-weight: 600; }
+.sl-card.sl-lane-period .sl-card-title, .sl-card.sl-lane-claim .sl-card-title { color: var(--ink); }
+.sl-card.sl-lane-period .sl-card-sub, .sl-card.sl-lane-claim .sl-card-sub { color: var(--new-ink); }
+.sl-lane.sl-lane-id-period, .sl-lane.sl-lane-id-claim { box-shadow: inset 4px 0 0 var(--new); }
+.sl-lane-id-period .sl-lane-label, .sl-lane-id-claim .sl-lane-label { color: var(--new-ink); }
+.sl-lane-id-period .sl-lane-dim, .sl-lane-id-claim .sl-lane-dim { background: var(--new-tint); color: var(--new-ink); border-color: var(--new-border); }
+.sl-tag.sl-tag-new { background: var(--new-tint); color: var(--new-ink); border-color: var(--new-border); }
+.sl-sw.v-new { background: var(--new-tint); border-color: var(--new-border); }
+em.sl-new { font-style: italic; color: var(--new); font-weight: 600; font-family: var(--font); }
+em.sl-exist { font-style: italic; color: var(--muted); font-family: var(--font); }
+
+
+/* Page tabs and data model page */
+.gp-tabs-wrap { max-width: var(--sheet-w, 1400px); margin: 0 auto; padding: 20px 32px 0; background: var(--sheet); }
+.gp-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--rule); }
+.gp-tab { appearance: none; border: 1px solid transparent; border-bottom: none; background: none; padding: 8px 16px; margin-bottom: -1px; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; border-radius: 6px 6px 0 0; }
+.gp-tab:hover { color: var(--ink); }
+.gp-tab[aria-selected="true"] { color: var(--ink); font-weight: 600; background: var(--sheet); border-color: var(--rule); box-shadow: inset 0 3px 0 var(--primary); }
+.dm-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: 12px; line-height: 16px; color: var(--ink-2); max-width: 720px; }
+.dm-lg { display: inline-flex; align-items: center; gap: 6px; }
+.dm-sw { display: inline-block; width: 22px; height: 14px; border-radius: 3px; }
+.dm-sw-old { background: #F3F5F7; border: 1px solid #C5CCD3; }
+.dm-sw-new { background: var(--new-tint); border: 2px solid var(--new); }
+.dm-ln { display: inline-block; width: 26px; height: 0; border-top: 2px solid; }
+.dm-ln-old { border-color: #8A9199; } .dm-ln-new { border-color: var(--new); }
+.dm-canvas { margin-top: 20px; overflow-x: auto; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); padding: 12px; }
+.dm-svg { display: block; width: 100%; max-width: 1530px; min-width: 1100px; margin: 0 auto; height: auto; font-family: var(--font); }
+.dm-box { fill: #FFFFFF; stroke: #C5CCD3; stroke-width: 1.25; }
+.dm-headbg { fill: #F3F5F7; }
+.dm-ent-new .dm-box { stroke: var(--new); stroke-width: 2; }
+.dm-ent-new .dm-headbg { fill: var(--new-tint); }
+.dm-sep { stroke: #D7DBE0; } .dm-ent-new .dm-sep { stroke: var(--new); stroke-opacity: .35; }
+.dm-rowline { stroke: #ECEEF1; }
+.dm-title { font-size: 15px; font-weight: 600; fill: var(--ink); }
+.dm-api { font-size: 11.5px; fill: var(--muted); }
+.dm-ent-new .dm-api { fill: var(--new); }
+.dm-chip { fill: #FFFFFF; stroke: #C5CCD3; }
+.dm-ent-new .dm-chip { fill: var(--new-tint); stroke: var(--new); }
+.dm-chiptext { font-size: 10.5px; fill: var(--muted); }
+.dm-ent-new .dm-chiptext { fill: var(--new); font-weight: 600; }
+.dm-field { font-size: 12.5px; fill: var(--ink); font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+.dm-type { font-size: 11px; fill: var(--muted); }
+.dm-newbar { fill: var(--new); }
+.dm-mk-new { font-style: italic; font-weight: 600; fill: var(--new); font-family: var(--font); }
+.dm-mk-old { font-style: italic; fill: var(--muted); font-family: var(--font); }
+.dm-rel { fill: none; stroke-width: 1.75; }
+.dm-rel-old { stroke: #8A9199; } .dm-rel-new { stroke: var(--new); }
+.dm-rlab { font-size: 11.5px; } .dm-rlab-old { fill: var(--ink-2); } .dm-rlab-new { fill: var(--ink-2); }
+.dm-card { font-size: 11px; font-weight: 600; fill: var(--muted); }
+.dm-sec { margin-top: 28px; }
+.dm-stack { fill: #FFFFFF; stroke: #C5CCD3; stroke-width: 1.25; }
+.dm-fan { stroke-width: 1.6; }
+.dm-fan-dot { fill: var(--new); }
+.dm-ret-box { fill: #FAFAFB; stroke: #B8BEC5; stroke-width: 1.25; stroke-dasharray: 6 4; }
+.dm-ret-title { font-size: 15px; font-weight: 600; fill: var(--muted); text-decoration: line-through; }
+.dm-ret-chip { fill: #FFFFFF; stroke: #B8BEC5; }
+.dm-ret-chiptext { font-size: 10.5px; fill: var(--muted); font-weight: 600; }
+.dm-ret-text { font-size: 12.5px; fill: var(--ink-2); }
+.dm-sw-ret { background: #FAFAFB; border: 1px dashed #B8BEC5; }
+.dm-h2 { font-size: 18px; line-height: 24px; margin: 0 0 10px; font-weight: 600; }
+.dm-h3 { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 6px; color: var(--ink-2); }
+.dm-tablewrap { overflow-x: auto; }
+.dm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.dm-table th { text-align: left; font-weight: 600; background: #F3F5F7; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+.dm-table td { padding: 8px 10px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+.dm-mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; }
+.dm-foot { margin-top: 28px; padding-top: 14px; border-top: 2px solid var(--ink); font-size: 13px; color: var(--ink-2); }
+.dm-foot ul { margin: 0; padding-left: 18px; }
+.dm-reco ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
+@media print { .gp-tabs-wrap { display: none; } }
+
+</style>
+</head>
+<body>
+<div class="gp-tabs-wrap"><div class="gp-tabs" role="tablist" aria-label="Pages">
+<button type="button" role="tab" class="gp-tab" id="gp-tab-flow" aria-selected="true" aria-controls="app">Process flow</button>
+<button type="button" role="tab" class="gp-tab" id="gp-tab-model" aria-selected="false" aria-controls="dm-page">Data model</button>
+</div></div>
+<div id="dm-page" class="sl-sheet dm-sheet" role="tabpanel" aria-labelledby="gp-tab-model" hidden>
+<header class="sl-mast"><div class="sl-mast-text"><div class="sl-overline">NPSP · Gift Aid · Alternative model</div>
+<h1 class="sl-title">Gift Aid data model: alternative</h1>
+<p class="sl-subtitle">Declarations recorded on Coverage Period, which keeps the history. Teal marks proposed (new) objects, fields and relationships.</p></div>
+<div class="dm-legend">
+<span class="dm-lg"><span class="dm-sw dm-sw-old"></span>Existing object</span>
+<span class="dm-lg"><span class="dm-sw dm-sw-new"></span>Proposed <em class="sl-new">(new)</em> object</span>
+<span class="dm-lg"><span class="dm-ln dm-ln-old"></span>Existing relationship</span>
+<span class="dm-lg"><span class="dm-ln dm-ln-new"></span>Proposed relationship</span>
+<span class="dm-lg"><span class="dm-sw dm-sw-ret"></span>Retired object</span>
+<span class="dm-lg"><span class="dm-ln dm-ln-new" style="border-top-style:dashed"></span>Roll-up summary</span>
+<span class="dm-lg">Fields: <em class="sl-new">(new)</em> proposed, <em class="sl-exist">(exist.)</em> in the current model</span>
+<span class="dm-lg">Arrow points to the parent (1); the other end shows how many children (0..* or 1..*)</span>
+</div></header>
+<div class="dm-canvas"><svg class="dm-svg" viewBox="0 0 1530 1064" role="img" aria-label="Gift Aid data model, alternative: four objects, one retired, and their relationships"><defs><marker id="dm-one-old" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8A9199"/></marker><marker id="dm-one-new" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0F766E"/></marker></defs><path d="M610 110 L510 110" class="dm-rel dm-rel-new" marker-end="url(#dm-one-new)"/><text x="560" y="88" class="dm-rlab dm-rlab-new" text-anchor="middle">master-detail</text><text x="560" y="102" class="dm-rlab dm-rlab-new" text-anchor="middle"><tspan class="dm-mk-new">(new)</tspan></text><text x="602" y="128" class="dm-card" text-anchor="end">0..*</text><text x="518" y="128" class="dm-card" text-anchor="start">1</text><path d="M610 328 L510 328" class="dm-rel dm-rel-new" stroke-dasharray="5 4" marker-end="url(#dm-one-new)"/><text x="560" y="306" class="dm-rlab dm-rlab-new" text-anchor="middle">COUNT roll-ups</text><text x="560" y="320" class="dm-rlab dm-rlab-new" text-anchor="middle"><tspan class="dm-mk-new">(new)</tspan></text><path d="M1110 980 L560 980 L560 370 L510 370" class="dm-rel dm-rel-old" marker-end="url(#dm-one-old)"/><text x="835" y="972" class="dm-rlab dm-rlab-old" text-anchor="middle">npsp__Primary_Contact__c · lookup</text><text x="1102" y="998" class="dm-card" text-anchor="end">0..*</text><text x="518" y="392" class="dm-card" text-anchor="start">1</text><path d="M1110 680 L800 680 L800 508" class="dm-rel dm-rel-new" marker-end="url(#dm-one-new)"/><text x="810" y="670" class="dm-rlab dm-rlab-new" text-anchor="start">Coverage Period · lookup <tspan class="dm-mk-new">(new)</tspan></text><text x="1102" y="698" class="dm-card" text-anchor="end">0..*</text><text x="808" y="526" class="dm-card" text-anchor="start">1</text><path d="M1420 620 L1420 484" class="dm-rel dm-rel-new" marker-end="url(#dm-one-new)"/><text x="1410" y="556" class="dm-rlab dm-rlab-new" text-anchor="end">Adjusted In Claim</text><text x="1410" y="570" class="dm-rlab dm-rlab-new" text-anchor="end">lookup <tspan class="dm-mk-new">(new)</tspan></text><text x="1428" y="612" class="dm-card" text-anchor="start">0..*</text><text x="1428" y="502" class="dm-card" text-anchor="start">1</text><rect x="1124" y="634" width="380" height="400" rx="8" class="dm-stack"/><rect x="1117" y="627" width="380" height="400" rx="8" class="dm-stack"/><path d="M1140 620 C1140 562, 1172 536, 1172 484" class="dm-rel dm-rel-new dm-fan" marker-end="url(#dm-one-new)"/><circle cx="1140" cy="620" r="3.5" class="dm-fan-dot"/><path d="M1190 620 C1190 562, 1190 536, 1190 484" class="dm-rel dm-rel-new dm-fan" marker-end="url(#dm-one-new)"/><circle cx="1190" cy="620" r="3.5" class="dm-fan-dot"/><path d="M1240 620 C1240 562, 1208 536, 1208 484" class="dm-rel dm-rel-new dm-fan" marker-end="url(#dm-one-new)"/><circle cx="1240" cy="620" r="3.5" class="dm-fan-dot"/><path d="M1290 620 C1290 562, 1226 536, 1226 484" class="dm-rel dm-rel-new dm-fan" marker-end="url(#dm-one-new)"/><circle cx="1290" cy="620" r="3.5" class="dm-fan-dot"/><text x="1120" y="528" class="dm-rlab dm-rlab-new" text-anchor="end">Gift Aid Claim · lookup <tspan class="dm-mk-new">(new)</tspan></text><text x="1120" y="542" class="dm-rlab" text-anchor="end">one claim, many gifts</text><text x="1242" y="502" class="dm-card" text-anchor="start">1</text><text x="1302" y="612" class="dm-card" text-anchor="start">1..*</text><g class="dm-ent dm-ent-old"><rect x="40" y="60" width="470" height="328" rx="8" class="dm-box"/><path d="M40 68 a8 8 0 0 1 8 -8 h454 a8 8 0 0 1 8 8 v44 h-470 z" class="dm-headbg"/><line x1="40" y1="112" x2="510" y2="112" class="dm-sep"/><text x="56" y="84" class="dm-title" text-anchor="start">Contact</text><text x="56" y="102" class="dm-api" text-anchor="start">Contact</text><rect x="394.5" y="74" width="100" height="20" rx="4" class="dm-chip"/><text x="444" y="88" class="dm-chiptext" text-anchor="middle">Existing object</text><text x="56" y="129" class="dm-field">Salutation <tspan class="dm-mk-old">(exist.)</tspan></text><text x="494" y="129" class="dm-type" text-anchor="end">Picklist</text><line x1="52" y1="136" x2="498" y2="136" class="dm-rowline"/><text x="56" y="153" class="dm-field">FirstName <tspan class="dm-mk-old">(exist.)</tspan></text><text x="494" y="153" class="dm-type" text-anchor="end">Text(40)</text><line x1="52" y1="160" x2="498" y2="160" class="dm-rowline"/><text x="56" y="177" class="dm-field">LastName <tspan class="dm-mk-old">(exist.)</tspan></text><text x="494" y="177" class="dm-type" text-anchor="end">Text(80)</text><line x1="52" y1="184" x2="498" y2="184" class="dm-rowline"/><text x="56" y="201" class="dm-field">MailingStreet <tspan class="dm-mk-old">(exist.)</tspan></text><text x="494" y="201" class="dm-type" text-anchor="end">Address</text><line x1="52" y1="208" x2="498" y2="208" class="dm-rowline"/><text x="56" y="225" class="dm-field">MailingPostalCode <tspan class="dm-mk-old">(exist.)</tspan></text><text x="494" y="225" class="dm-type" text-anchor="end">Address</text><line x1="52" y1="232" x2="498" y2="232" class="dm-rowline"/><text x="56" y="249" class="dm-field">MailingCountry <tspan class="dm-mk-old">(exist.)</tspan></text><text x="494" y="249" class="dm-type" text-anchor="end">Address</text><line x1="52" y1="256" x2="498" y2="256" class="dm-rowline"/><rect x="41" y="256" width="3" height="24" class="dm-newbar"/><text x="56" y="273" class="dm-field">Gift Aid Cancellation Date <tspan class="dm-mk-new">(new)</tspan></text><text x="494" y="273" class="dm-type" text-anchor="end">Date</text><line x1="52" y1="280" x2="498" y2="280" class="dm-rowline"/><rect x="41" y="280" width="3" height="24" class="dm-newbar"/><text x="56" y="297" class="dm-field">Gift Aid Cancellation Reason <tspan class="dm-mk-new">(new)</tspan></text><text x="494" y="297" class="dm-type" text-anchor="end">Picklist</text><line x1="52" y1="304" x2="498" y2="304" class="dm-rowline"/><rect x="41" y="304" width="3" height="24" class="dm-newbar"/><text x="56" y="321" class="dm-field">Number of Active Gift Aid Declarations <tspan class="dm-mk-new">(new)</tspan></text><text x="494" y="321" class="dm-type" text-anchor="end">Roll-Up (COUNT)</text><line x1="52" y1="328" x2="498" y2="328" class="dm-rowline"/><rect x="41" y="328" width="3" height="24" class="dm-newbar"/><text x="56" y="345" class="dm-field">Number of Ended Gift Aid Declarations <tspan class="dm-mk-new">(new)</tspan></text><text x="494" y="345" class="dm-type" text-anchor="end">Roll-Up (COUNT)</text><line x1="52" y1="352" x2="498" y2="352" class="dm-rowline"/><rect x="41" y="352" width="3" height="24" class="dm-newbar"/><text x="56" y="369" class="dm-field">Gift Aid Active <tspan class="dm-mk-new">(new)</tspan></text><text x="494" y="369" class="dm-type" text-anchor="end">Formula (Checkbox)</text></g><g class="dm-ent dm-ent-new"><rect x="610" y="60" width="380" height="448" rx="8" class="dm-box"/><path d="M610 68 a8 8 0 0 1 8 -8 h364 a8 8 0 0 1 8 8 v44 h-380 z" class="dm-headbg"/><line x1="610" y1="112" x2="990" y2="112" class="dm-sep"/><text x="626" y="84" class="dm-title" text-anchor="start">Gift Aid Coverage Period</text><text x="626" y="102" class="dm-api" text-anchor="start">Proposed object</text><rect x="837.9" y="74" width="136" height="20" rx="4" class="dm-chip"/><text x="906" y="88" class="dm-chiptext" text-anchor="middle">New object (proposed)</text><rect x="611" y="112" width="3" height="24" class="dm-newbar"/><text x="626" y="129" class="dm-field">Coverage Period ID <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="129" class="dm-type" text-anchor="end">Auto Number</text><line x1="622" y1="136" x2="978" y2="136" class="dm-rowline"/><rect x="611" y="136" width="3" height="24" class="dm-newbar"/><text x="626" y="153" class="dm-field">Contact <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="153" class="dm-type" text-anchor="end">Master-Detail(Contact)</text><line x1="622" y1="160" x2="978" y2="160" class="dm-rowline"/><rect x="611" y="160" width="3" height="24" class="dm-newbar"/><text x="626" y="177" class="dm-field">Start Date <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="177" class="dm-type" text-anchor="end">Date</text><line x1="622" y1="184" x2="978" y2="184" class="dm-rowline"/><rect x="611" y="184" width="3" height="24" class="dm-newbar"/><text x="626" y="201" class="dm-field">End Date <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="201" class="dm-type" text-anchor="end">Date</text><line x1="622" y1="208" x2="978" y2="208" class="dm-rowline"/><rect x="611" y="208" width="3" height="24" class="dm-newbar"/><text x="626" y="225" class="dm-field">End Reason <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="225" class="dm-type" text-anchor="end">Picklist</text><line x1="622" y1="232" x2="978" y2="232" class="dm-rowline"/><rect x="611" y="232" width="3" height="24" class="dm-newbar"/><text x="626" y="249" class="dm-field">Is Active? <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="249" class="dm-type" text-anchor="end">Checkbox</text><line x1="622" y1="256" x2="978" y2="256" class="dm-rowline"/><rect x="611" y="256" width="3" height="24" class="dm-newbar"/><text x="626" y="273" class="dm-field">Status <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="273" class="dm-type" text-anchor="end">Picklist</text><line x1="622" y1="280" x2="978" y2="280" class="dm-rowline"/><rect x="611" y="280" width="3" height="24" class="dm-newbar"/><text x="626" y="297" class="dm-field">Change Reason <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="297" class="dm-type" text-anchor="end">Picklist</text><line x1="622" y1="304" x2="978" y2="304" class="dm-rowline"/><rect x="611" y="304" width="3" height="24" class="dm-newbar"/><text x="626" y="321" class="dm-field">Ineligibility Reason <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="321" class="dm-type" text-anchor="end">Picklist</text><line x1="622" y1="328" x2="978" y2="328" class="dm-rowline"/><rect x="611" y="328" width="3" height="24" class="dm-newbar"/><text x="626" y="345" class="dm-field">Reason Detail <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="345" class="dm-type" text-anchor="end">Text(255)</text><line x1="622" y1="352" x2="978" y2="352" class="dm-rowline"/><rect x="611" y="352" width="3" height="24" class="dm-newbar"/><text x="626" y="369" class="dm-field">Declaration Date <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="369" class="dm-type" text-anchor="end">Date</text><line x1="622" y1="376" x2="978" y2="376" class="dm-rowline"/><rect x="611" y="376" width="3" height="24" class="dm-newbar"/><text x="626" y="393" class="dm-field">Source <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="393" class="dm-type" text-anchor="end">Picklist</text><line x1="622" y1="400" x2="978" y2="400" class="dm-rowline"/><rect x="611" y="400" width="3" height="24" class="dm-newbar"/><text x="626" y="417" class="dm-field">Address Line 1 <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="417" class="dm-type" text-anchor="end">Text(255)</text><line x1="622" y1="424" x2="978" y2="424" class="dm-rowline"/><rect x="611" y="424" width="3" height="24" class="dm-newbar"/><text x="626" y="441" class="dm-field">Address City <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="441" class="dm-type" text-anchor="end">Text(255)</text><line x1="622" y1="448" x2="978" y2="448" class="dm-rowline"/><rect x="611" y="448" width="3" height="24" class="dm-newbar"/><text x="626" y="465" class="dm-field">Address Post Code <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="465" class="dm-type" text-anchor="end">Text(255)</text><line x1="622" y1="472" x2="978" y2="472" class="dm-rowline"/><rect x="611" y="472" width="3" height="24" class="dm-newbar"/><text x="626" y="489" class="dm-field">Address Country <tspan class="dm-mk-new">(new)</tspan></text><text x="974" y="489" class="dm-type" text-anchor="end">Text(255)</text></g><g class="dm-ent dm-ent-new"><rect x="1110" y="60" width="380" height="424" rx="8" class="dm-box"/><path d="M1110 68 a8 8 0 0 1 8 -8 h364 a8 8 0 0 1 8 8 v44 h-380 z" class="dm-headbg"/><line x1="1110" y1="112" x2="1490" y2="112" class="dm-sep"/><text x="1126" y="84" class="dm-title" text-anchor="start">Gift Aid Claim</text><text x="1126" y="102" class="dm-api" text-anchor="start">Proposed object</text><rect x="1337.9" y="74" width="136" height="20" rx="4" class="dm-chip"/><text x="1406" y="88" class="dm-chiptext" text-anchor="middle">New object (proposed)</text><rect x="1111" y="112" width="3" height="24" class="dm-newbar"/><text x="1126" y="129" class="dm-field">Claim ID <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="129" class="dm-type" text-anchor="end">Auto Number</text><line x1="1122" y1="136" x2="1478" y2="136" class="dm-rowline"/><rect x="1111" y="136" width="3" height="24" class="dm-newbar"/><text x="1126" y="153" class="dm-field">Status <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="153" class="dm-type" text-anchor="end">Picklist</text><line x1="1122" y1="160" x2="1478" y2="160" class="dm-rowline"/><rect x="1111" y="160" width="3" height="24" class="dm-newbar"/><text x="1126" y="177" class="dm-field">Claim Start Date <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="177" class="dm-type" text-anchor="end">Date</text><line x1="1122" y1="184" x2="1478" y2="184" class="dm-rowline"/><rect x="1111" y="184" width="3" height="24" class="dm-newbar"/><text x="1126" y="201" class="dm-field">Claim End Date <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="201" class="dm-type" text-anchor="end">Date</text><line x1="1122" y1="208" x2="1478" y2="208" class="dm-rowline"/><rect x="1111" y="208" width="3" height="24" class="dm-newbar"/><text x="1126" y="225" class="dm-field">Earliest Gift Date <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="225" class="dm-type" text-anchor="end">Date (Flow)</text><line x1="1122" y1="232" x2="1478" y2="232" class="dm-rowline"/><rect x="1111" y="232" width="3" height="24" class="dm-newbar"/><text x="1126" y="249" class="dm-field">Line Count <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="249" class="dm-type" text-anchor="end">Number (Flow)</text><line x1="1122" y1="256" x2="1478" y2="256" class="dm-rowline"/><rect x="1111" y="256" width="3" height="24" class="dm-newbar"/><text x="1126" y="273" class="dm-field">Total Donations <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="273" class="dm-type" text-anchor="end">Currency (Flow)</text><line x1="1122" y1="280" x2="1478" y2="280" class="dm-rowline"/><rect x="1111" y="280" width="3" height="24" class="dm-newbar"/><text x="1126" y="297" class="dm-field">Expected Gift Aid <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="297" class="dm-type" text-anchor="end">Formula (Currency)</text><line x1="1122" y1="304" x2="1478" y2="304" class="dm-rowline"/><rect x="1111" y="304" width="3" height="24" class="dm-newbar"/><text x="1126" y="321" class="dm-field">Over-claim Adjustment <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="321" class="dm-type" text-anchor="end">Currency (Flow)</text><line x1="1122" y1="328" x2="1478" y2="328" class="dm-rowline"/><rect x="1111" y="328" width="3" height="24" class="dm-newbar"/><text x="1126" y="345" class="dm-field">Adjustment Explanation <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="345" class="dm-type" text-anchor="end">Long Text</text><line x1="1122" y1="352" x2="1478" y2="352" class="dm-rowline"/><rect x="1111" y="352" width="3" height="24" class="dm-newbar"/><text x="1126" y="369" class="dm-field">Exported On / By <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="369" class="dm-type" text-anchor="end">Date/Time, Lookup(User)</text><line x1="1122" y1="376" x2="1478" y2="376" class="dm-rowline"/><rect x="1111" y="376" width="3" height="24" class="dm-newbar"/><text x="1126" y="393" class="dm-field">Submitted On <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="393" class="dm-type" text-anchor="end">Date/Time</text><line x1="1122" y1="400" x2="1478" y2="400" class="dm-rowline"/><rect x="1111" y="400" width="3" height="24" class="dm-newbar"/><text x="1126" y="417" class="dm-field">Authorised Official <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="417" class="dm-type" text-anchor="end">Lookup(Contact/User)</text><line x1="1122" y1="424" x2="1478" y2="424" class="dm-rowline"/><rect x="1111" y="424" width="3" height="24" class="dm-newbar"/><text x="1126" y="441" class="dm-field">HMRC Submission Reference <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="441" class="dm-type" text-anchor="end">Text(50)</text><line x1="1122" y1="448" x2="1478" y2="448" class="dm-rowline"/><rect x="1111" y="448" width="3" height="24" class="dm-newbar"/><text x="1126" y="465" class="dm-field">Paid On / Amount Received <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="465" class="dm-type" text-anchor="end">Date, Currency</text></g><g class="dm-ent dm-ent-old"><rect x="1110" y="620" width="380" height="400" rx="8" class="dm-box"/><path d="M1110 628 a8 8 0 0 1 8 -8 h364 a8 8 0 0 1 8 8 v44 h-380 z" class="dm-headbg"/><line x1="1110" y1="672" x2="1490" y2="672" class="dm-sep"/><text x="1126" y="644" class="dm-title" text-anchor="start">Opportunity</text><text x="1126" y="662" class="dm-api" text-anchor="start">NPSP gift</text><rect x="1374.5" y="634" width="100" height="20" rx="4" class="dm-chip"/><text x="1424" y="648" class="dm-chiptext" text-anchor="middle">Existing object</text><text x="1126" y="689" class="dm-field">npsp__Primary_Contact__c <tspan class="dm-mk-old">(exist.)</tspan></text><text x="1474" y="689" class="dm-type" text-anchor="end">Lookup</text><line x1="1122" y1="696" x2="1478" y2="696" class="dm-rowline"/><text x="1126" y="713" class="dm-field">CloseDate <tspan class="dm-mk-old">(exist.)</tspan></text><text x="1474" y="713" class="dm-type" text-anchor="end">Date</text><line x1="1122" y1="720" x2="1478" y2="720" class="dm-rowline"/><text x="1126" y="737" class="dm-field">Amount <tspan class="dm-mk-old">(exist.)</tspan></text><text x="1474" y="737" class="dm-type" text-anchor="end">Currency</text><line x1="1122" y1="744" x2="1478" y2="744" class="dm-rowline"/><text x="1126" y="761" class="dm-field">StageName <tspan class="dm-mk-old">(exist.)</tspan></text><text x="1474" y="761" class="dm-type" text-anchor="end">Picklist</text><line x1="1122" y1="768" x2="1478" y2="768" class="dm-rowline"/><text x="1126" y="785" class="dm-field">RecordTypeId <tspan class="dm-mk-old">(exist.)</tspan></text><text x="1474" y="785" class="dm-type" text-anchor="end">Record Type</text><line x1="1122" y1="792" x2="1478" y2="792" class="dm-rowline"/><text x="1126" y="809" class="dm-field">npe01__Amount_Outstanding__c <tspan class="dm-mk-old">(exist.)</tspan></text><text x="1474" y="809" class="dm-type" text-anchor="end">Formula</text><line x1="1122" y1="816" x2="1478" y2="816" class="dm-rowline"/><text x="1126" y="833" class="dm-field">Gift_Aid_Claimed_Date__c <tspan class="dm-mk-old">(exist.)</tspan></text><text x="1474" y="833" class="dm-type" text-anchor="end">Date</text><line x1="1122" y1="840" x2="1478" y2="840" class="dm-rowline"/><rect x="1111" y="840" width="3" height="24" class="dm-newbar"/><text x="1126" y="857" class="dm-field">Gift Aid Coverage Period <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="857" class="dm-type" text-anchor="end">Lookup</text><line x1="1122" y1="864" x2="1478" y2="864" class="dm-rowline"/><rect x="1111" y="864" width="3" height="24" class="dm-newbar"/><text x="1126" y="881" class="dm-field">Gift Aid Claim <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="881" class="dm-type" text-anchor="end">Lookup</text><line x1="1122" y1="888" x2="1478" y2="888" class="dm-rowline"/><rect x="1111" y="888" width="3" height="24" class="dm-newbar"/><text x="1126" y="905" class="dm-field">Gift Aid Claimed Amount <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="905" class="dm-type" text-anchor="end">Currency</text><line x1="1122" y1="912" x2="1478" y2="912" class="dm-rowline"/><rect x="1111" y="912" width="3" height="24" class="dm-newbar"/><text x="1126" y="929" class="dm-field">Gift Aid Exclusion <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="929" class="dm-type" text-anchor="end">Picklist</text><line x1="1122" y1="936" x2="1478" y2="936" class="dm-rowline"/><rect x="1111" y="936" width="3" height="24" class="dm-newbar"/><text x="1126" y="953" class="dm-field">Adjusted In Claim <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="953" class="dm-type" text-anchor="end">Lookup</text><line x1="1122" y1="960" x2="1478" y2="960" class="dm-rowline"/><rect x="1111" y="960" width="3" height="24" class="dm-newbar"/><text x="1126" y="977" class="dm-field">Tax Over-claimed <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="977" class="dm-type" text-anchor="end">Currency</text><line x1="1122" y1="984" x2="1478" y2="984" class="dm-rowline"/><rect x="1111" y="984" width="3" height="24" class="dm-newbar"/><text x="1126" y="1001" class="dm-field">Adjustment Reason <tspan class="dm-mk-new">(new)</tspan></text><text x="1474" y="1001" class="dm-type" text-anchor="end">Picklist</text></g><g class="dm-retired"><rect x="40" y="640" width="380" height="116" rx="8" class="dm-ret-box"/><text x="56" y="666" class="dm-ret-title">Gift Aid Declaration</text><text x="56" y="684" class="dm-api">Existing custom object</text><rect x="342" y="654" width="62" height="20" rx="4" class="dm-ret-chip"/><text x="373" y="668" class="dm-ret-chiptext" text-anchor="middle">Retired</text><line x1="40" y1="696" x2="420" y2="696" class="dm-sep"/><text x="56" y="720" class="dm-ret-text">Declaration details move to Coverage Period,</text><text x="56" y="740" class="dm-ret-text">which also keeps the declaration history.</text></g></svg></div>
+<section class="dm-sec"><h2 class="dm-h2">Relationships</h2>
+<div class="dm-tablewrap"><table class="dm-table"><thead><tr><th>Child object</th><th>Parent object</th><th>Field on child</th><th>Type</th><th>Meaning</th></tr></thead><tbody><tr><td>Gift Aid Coverage Period</td><td>Contact</td><td class="dm-mono">Contact</td><td>Master-detail <em class="sl-new">(new)</em></td><td>Each period belongs to one donor; periods never overlap. Address Country is copied from the Contact&#x27;s Mailing Country</td></tr><tr><td>Gift Aid Coverage Period</td><td>Contact</td><td class="dm-mono">Number of Active / Ended Gift Aid Declarations (fields on Contact)</td><td>Roll-up summary (COUNT) <em class="sl-new">(new)</em></td><td>How many active and ended periods the donor has</td></tr><tr><td>Opportunity</td><td>Contact</td><td class="dm-mono">npsp__Primary_Contact__c</td><td>Lookup <em class="sl-exist">(exist.)</em></td><td>The donor of the gift</td></tr><tr><td>Opportunity</td><td>Gift Aid Coverage Period</td><td class="dm-mono">Gift Aid Coverage Period</td><td>Lookup <em class="sl-new">(new)</em></td><td>The period whose dates contain the Close Date</td></tr><tr><td>Opportunity</td><td>Gift Aid Claim</td><td class="dm-mono">Gift Aid Claim</td><td>Lookup <em class="sl-new">(new)</em></td><td>One claim includes many gifts (shown as several arrows); each gift is in one claim at most</td></tr><tr><td>Opportunity</td><td>Gift Aid Claim</td><td class="dm-mono">Adjusted In Claim</td><td>Lookup <em class="sl-new">(new)</em></td><td>The claim that carried a later over-claim correction</td></tr><tr><td>Gift Aid Declaration</td><td>Contact</td><td class="dm-mono">Contact</td><td>Master-detail, retired </td><td>Removed with the retired object</td></tr></tbody></table></div></section>
+<section class="dm-sec dm-reco"><h3 class="dm-h3">Recommended, not in the data model</h3><ul>
+<li><span class="dm-mono">Donor Benefit Value</span> on Opportunity (Currency): the value of any benefit the donor received for a gift, so HMRC's donor-benefit limits can be checked before claiming.</li></ul></section>
+<footer class="dm-foot"><h3 class="dm-h3">Not confirmed</h3><ul>
+<li>Gift Aid Coverage Period fields shown with their org labels match the object as built (Contact, Start Date, End Date, End Reason, Is Active?, Declaration Date, Source, Address Line 1, Address City, Address Post Code). Address Country, Status, Change Reason, Ineligibility Reason and Reason Detail are not on the object yet.</li>
+<li>Gift Aid Claim and the new Opportunity and Contact fields carry design labels, not deployed API names. The two Number fields are shown as COUNT roll-ups of Coverage Period and Gift Aid Active as a formula (Number of Active above 0); field types are proposals.</li>
+<li>Declaration details on Coverage Period are not edited once the period has claimed gifts.</li>
+<li>Contact roll-ups Gift_Aid_Start_Date__c and Gift_Aid_End_Date__c depend on the retired object; the formulas Gift_Aid_Eligibility__c and Gift_Aid_Status__c need review.</li>
+<li>Only fields relevant to the Gift Aid processes are shown; Contact and Opportunity carry many more.</li></ul></footer>
+</div>
+<div id="app"><noscript>This swimlane map needs JavaScript to draw.</noscript></div>
+<script type="application/json" id="sl-spec">{"version":1,"meta":{"id":"gift-aid-alternative","title":"Gift Aid data flow: alternative model","overline":"NPSP · Gift Aid · Alternative model","subtitle":"Declarations recorded on Coverage Period, which keeps the history. Teal marks new objects and fields.","layout":"horizontal","detail":"working","spacing":"roomy","format":"canvas","version":"1.5","artifactUrl":"https://claude.ai/artifact/9rM1FSrqCGJsudiWev4JrG"},"lanes":[{"id":"contact","label":"Contact","descriptor":"The donor","dimension":"Existing object"},{"id":"period","label":"Gift Aid Coverage Period","descriptor":"Declarations and eligibility history","dimension":"New object (proposed)"},{"id":"opp","label":"Opportunity","descriptor":"The gift","dimension":"Existing object"},{"id":"claim","label":"Gift Aid Claim","descriptor":"One per HMRC submission, many gifts","dimension":"New object (proposed)"}],"stages":[{"id":"s1","label":"Declare","descriptor":"Donor and declaration"},{"id":"s2","label":"Cover","descriptor":"Declarations and periods"},{"id":"s3","label":"Give","descriptor":"Gift linked to period"},{"id":"s4","label":"Export","descriptor":"Claim file produced"},{"id":"s5","label":"Submit","descriptor":"Sent to HMRC"},{"id":"s6","label":"Correct","descriptor":"Refunds after claim"}],"cards":[{"id":"donor","lane":"contact","stage":"s1","title":"Donor details","subtitle":"Contact","variant":"standard","fields":["Salutation (exist.)","FirstName (exist.)","LastName (exist.)","MailingStreet (exist.)","MailingPostalCode (exist.)","MailingCountry (exist.)"],"description":"Name, title and home address used on every schedule line."},{"id":"change","lane":"contact","stage":"s2","title":"Cancellation or change","subtitle":"Contact","variant":"decision","fields":["Gift Aid Cancellation Date (new)","Gift Aid Cancellation Reason (new)","MailingStreet (exist.)","MailingPostalCode (exist.)"],"tags":["New fields"],"description":"A cancellation, a new declaration source or an address change starts a new period."},{"id":"elig","lane":"period","stage":"s2","slot":0,"title":"Eligible period","subtitle":"Status = Eligible","variant":"system","fields":["Contact (new)","Start Date (new)","End Date (new)","End Reason (new)","Status (new)","Change Reason (new)","Declaration Date (new)","Source (new)","Address Line 1 (new)","Address City (new)","Address Post Code (new)","Address Country (new)","Is Active? (new)"],"description":"Created when a declaration is made; holds the declaration details and is not edited once its gifts are claimed."},{"id":"notelig","lane":"period","stage":"s2","slot":1,"title":"Not eligible period","subtitle":"Status = Not eligible","variant":"system","fields":["Start Date (new)","End Date (new)","End Reason (new)","Status (new)","Change Reason (new)","Ineligibility Reason (new)","Reason Detail (new)","Is Active? (new)"],"description":"Created for gaps and after cancellations, so the timeline has no holes."},{"id":"gift","lane":"opp","stage":"s3","slot":0,"title":"Gift received","subtitle":"Opportunity","variant":"standard","fields":["npsp__Primary_Contact__c (exist.)","CloseDate (exist.)","Amount (exist.)","StageName (exist.)","npe01__Amount_Outstanding__c (exist.)","RecordTypeId (exist.)"]},{"id":"link","lane":"opp","stage":"s3","slot":1,"title":"Gift linked to period","subtitle":"Opportunity","variant":"system","fields":["Gift Aid Coverage Period (lookup) (new)","Gift Aid Exclusion (new)"],"tags":["New fields"],"description":"Automation picks the period whose dates contain the Close Date."},{"id":"exported","lane":"claim","stage":"s4","title":"Claim exported","subtitle":"Status = Exported","variant":"key","fields":["Claim ID (new)","Status (new)","Claim Start Date (new)","Claim End Date (new)","Line Count (new)","Total Donations (new)","Earliest Gift Date (new)","Exported On (new)","Exported By (new)"]},{"id":"inclaim","lane":"opp","stage":"s4","title":"Gift added to claim","subtitle":"Opportunity","variant":"standard","fields":["Gift Aid Claim (lookup) (new)","Gift Aid Claimed Amount (new)"],"tags":["New fields"]},{"id":"submitted","lane":"claim","stage":"s5","title":"Claim submitted and paid","subtitle":"Status = Submitted, Paid","variant":"key","fields":["Submitted On (new)","Authorised Official (new)","HMRC Submission Reference (new)","Paid On (new)","Amount Received (new)","Expected Gift Aid (new)"]},{"id":"claimed","lane":"opp","stage":"s5","title":"Gift marked claimed","subtitle":"Opportunity","variant":"system","fields":["Gift_Aid_Claimed_Date__c (exist.)"]},{"id":"refund","lane":"opp","stage":"s6","title":"Refund after claim","subtitle":"Opportunity","variant":"decision","fields":["Adjusted In Claim (lookup) (new)","Tax Over-claimed (new)","Adjustment Reason (new)"],"tags":["New fields"]},{"id":"deduct","lane":"claim","stage":"s6","title":"Next claim deducts it","subtitle":"Gift Aid Claim","variant":"key","fields":["Over-claim Adjustment (new)","Adjustment Explanation (new)"]},{"id":"counts","lane":"contact","stage":"s3","title":"Declaration counts","subtitle":"Roll-ups and formula","variant":"system","fields":["Number of Active Gift Aid Declarations (new)","Number of Ended Gift Aid Declarations (new)","Gift Aid Active (new)"],"tags":["New fields"],"description":"COUNT roll-ups of Coverage Period on Contact; Gift Aid Active is true when there is at least one active period."}],"edges":[{"from":"donor","to":"elig","kind":"data","label":"Declaration recorded"},{"from":"donor","to":"change","kind":"optional","label":"Donor changes"},{"from":"change","to":"notelig","kind":"data","label":"Date, reason"},{"from":"gift","to":"link"},{"from":"elig","to":"link","kind":"data","label":"Close Date in range"},{"from":"link","to":"inclaim","label":"Eligible"},{"from":"exported","to":"inclaim","kind":"data","label":"One claim, many gifts"},{"from":"donor","to":"exported","kind":"data","label":"Name, address"},{"from":"exported","to":"submitted","label":"HMRC reference"},{"from":"submitted","to":"claimed","kind":"data","label":"Submitted On"},{"from":"claimed","to":"refund","kind":"optional","label":"Refunded"},{"from":"refund","to":"deduct","kind":"data","label":"Tax over-claimed"},{"from":"elig","to":"counts","kind":"data","label":"COUNT roll-ups"}],"interactions":{"search":false},"legend":{"extra":[{"cls":"v-new","label":"Proposed (new) object"},"Fields: (new) proposed, (exist.) in the current model"]},"notes":{"assumptions":["The existing Gift Aid Declaration object is retired in this model; declaration details are recorded on Coverage Period, which keeps the history.","Gift Aid Coverage Period matches the object built in the org for Contact, Start Date, End Date, End Reason, Is Active?, Declaration Date, Source and the address fields; Address Country, Status, Change Reason, Ineligibility Reason and Reason Detail are not on it yet. Other new names are design labels.","Contact roll-ups Gift_Aid_Start_Date__c and Gift_Aid_End_Date__c depend on the retired object; the formulas Gift_Aid_Eligibility__c and Gift_Aid_Status__c need review."]},"sections":[{"id":"fields","title":"Fields by step","type":"table","span":"full","collapsible":false,"intro":"Every field each card reads or writes. Click a card on the map for the same list.","columns":["Stage","Object","Step","Fields"],"rows":[["Declare","Contact (exist.)","Donor details","Salutation (exist.), FirstName (exist.), LastName (exist.), MailingStreet (exist.), MailingPostalCode (exist.), MailingCountry (exist.)"],["Cover","Contact (exist.)","Cancellation or change","Gift Aid Cancellation Date (new), Gift Aid Cancellation Reason (new), MailingStreet (exist.), MailingPostalCode (exist.)"],["Cover","Gift Aid Coverage Period (new)","Eligible period","Contact (new), Start Date (new), End Date (new), End Reason (new), Status (new), Change Reason (new), Declaration Date (new), Source (new), Address Line 1 (new), Address City (new), Address Post Code (new), Address Country (new), Is Active? (new)"],["Cover","Gift Aid Coverage Period (new)","Not eligible period","Start Date (new), End Date (new), End Reason (new), Status (new), Change Reason (new), Ineligibility Reason (new), Reason Detail (new), Is Active? (new)"],["Give","Contact (exist.)","Declaration counts","Number of Active Gift Aid Declarations (new), Number of Ended Gift Aid Declarations (new), Gift Aid Active (new)"],["Give","Opportunity (exist.)","Gift received","npsp__Primary_Contact__c (exist.), CloseDate (exist.), Amount (exist.), StageName (exist.), npe01__Amount_Outstanding__c (exist.), RecordTypeId (exist.)"],["Give","Opportunity (exist.)","Gift linked to period","Gift Aid Coverage Period (lookup) (new), Gift Aid Exclusion (new)"],["Export","Opportunity (exist.)","Gift added to claim","Gift Aid Claim (lookup) (new), Gift Aid Claimed Amount (new)"],["Export","Gift Aid Claim (new)","Claim exported","Claim ID (new), Status (new), Claim Start Date (new), Claim End Date (new), Line Count (new), Total Donations (new), Earliest Gift Date (new), Exported On (new), Exported By (new)"],["Submit","Opportunity (exist.)","Gift marked claimed","Gift_Aid_Claimed_Date__c (exist.)"],["Submit","Gift Aid Claim (new)","Claim submitted and paid","Submitted On (new), Authorised Official (new), HMRC Submission Reference (new), Paid On (new), Amount Received (new), Expected Gift Aid (new)"],["Correct","Opportunity (exist.)","Refund after claim","Adjusted In Claim (lookup) (new), Tax Over-claimed (new), Adjustment Reason (new)"],["Correct","Gift Aid Claim (new)","Next claim deducts it","Over-claim Adjustment (new), Adjustment Explanation (new)"]]}]}</script>
+<script id="sl-engine">
+/*
+ * Create Swimlane Process Maps: layout engine.
+ *
+ * Isomorphic: runs in Node (validation, SVG export) and in the browser (runtime).
+ * The layout is a pure function of (spec, state). Every card, lane, label and
+ * connector gets an explicit coordinate here; nothing is placed by the browser's
+ * flow layout. That is what keeps cards from wrapping or drifting.
+ *
+ * Abstract axes: t = time / flow direction, l = across lanes.
+ *   horizontal: x = t, y = l      vertical: x = l, y = t      layered: like horizontal,
+ *   but the flow runs down the lanes and stages are implicit columns.
+ */
+(function (root, factory) {
+  var api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.SwimlaneEngine = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  var VERSION = '2.0.0';
+
+  var DETAIL = {
+    overview: { cardW: 176, gutter: 60 },
+    working: { cardW: 210, gutter: 64 },
+    technical: { cardW: 260, gutter: 68 }
+  };
+
+  var K = {
+    padX: 10, padY: 9, titleSize: 13, titleLH: 17, subLH: 15, tagsH: 18,
+    slotGap: 14, bandStart: 22, bandEnd: 22, captionBand: 28, collapsedLane: 44,
+    laneLabelW: 204, stageHeaderH: 62, laneHeaderH: 76, stageLabelW: 172,
+    layeredTop: 14, endPad: 28, gutterStep: 7, bandStep: 5, pillH: 24, pillW: 112
+  };
+
+  var VARIANTS = ['standard', 'key', 'core', 'system', 'external', 'decision', 'note'];
+  var EDGE_KINDS = ['flow', 'data', 'handoff', 'loop', 'optional'];
+  var LAYOUTS = ['horizontal', 'vertical', 'layered'];
+  var FORMATS = {
+    'canvas': null,
+    'a4-portrait': [794, 1123], 'a4-landscape': [1123, 794],
+    'a3-portrait': [1123, 1587], 'a3-landscape': [1587, 1123],
+    'letter-portrait': [816, 1056], 'letter-landscape': [1056, 816],
+    'slides-16x9': [1280, 720]
+  };
+
+  var THEMES = {
+    reference: {
+      ink: '#16191D', ink2: '#3E454D', muted: '#5D646C', rule: '#D7DBE0', ruleStrong: '#C5CCD3',
+      laneA: '#FFFFFF', laneB: '#F8FAFC', laneLabel: '#F3F5F8',
+      primary: '#1F4E79', primaryTint: '#EEF3F8', primarySub: '#D3E2F1', onPrimary: '#FFFFFF',
+      secondary: '#8A5300', secondaryTint: '#FFF6E5', secondaryBorder: '#D9A441', secondaryInk: '#5A3A00',
+      systemBg: '#F5F6F8', systemBorder: '#7C858E', noteBg: '#FAFAF7', edge: '#4B525B',
+      font: "'IBM Plex Sans', 'Helvetica Neue', Helvetica, sans-serif",
+      mono: "'IBM Plex Mono', Menlo, Consolas, monospace"
+    },
+    cloudmuscle: {
+      ink: '#0B0E24', ink2: '#2B2F45', muted: '#555A70', rule: '#D9DBE3', ruleStrong: '#C3C6D2',
+      laneA: '#FFFFFF', laneB: '#F8F9FB', laneLabel: '#F4F5F7',
+      primary: '#101C89', primaryTint: '#ECEEFA', primarySub: '#D5D9F5', onPrimary: '#FFFFFF',
+      secondary: '#B83100', secondaryTint: '#FFEDE6', secondaryBorder: '#FF490F', secondaryInk: '#7A2000',
+      systemBg: '#F4F5F7', systemBorder: '#7A7F93', noteBg: '#FAFAF7', edge: '#2B2F45',
+      font: "'Inter', -apple-system, 'Segoe UI', sans-serif",
+      mono: "'IBM Plex Mono', Menlo, Consolas, monospace"
+    }
+  };
+
+  /* ---------- text measurement (estimates; fonts are pinned so this is stable) ---------- */
+
+  function charW(ch, size, mono, bold) {
+    if (mono) return 0.6 * size;
+    var f;
+    if ("ilI.,:;|!'`".indexOf(ch) >= 0) f = 0.28;
+    else if ('fjrt()[]{} -/'.indexOf(ch) >= 0) f = 0.36;
+    else if ('mwMW@%'.indexOf(ch) >= 0) f = 0.86;
+    else if (ch >= 'A' && ch <= 'Z') f = 0.65;
+    else if (ch >= '0' && ch <= '9') f = 0.57;
+    else f = 0.54;
+    return f * size * (bold ? 1.04 : 1);
+  }
+  function textWidth(s, size, mono, bold) {
+    s = s == null ? '' : String(s);
+    var w = 0;
+    for (var i = 0; i < s.length; i++) w += charW(s.charAt(i), size, mono, bold);
+    return w;
+  }
+  function wrapLines(s, size, maxW, mono, bold) {
+    s = s == null ? '' : String(s);
+    if (!s) return [];
+    var words = s.split(/\s+/), lines = [], cur = '';
+    words.forEach(function (w) {
+      var cand = cur ? cur + ' ' + w : w;
+      if (textWidth(cand, size, mono, bold) <= maxW || !cur) cur = cand;
+      else { lines.push(cur); cur = w; }
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+  function lineCount(s, size, maxW, mono, bold) { return wrapLines(s, size, maxW, mono, bold).length; }
+  function truncate(s, size, maxW, mono, bold) {
+    s = s == null ? '' : String(s);
+    if (textWidth(s, size, mono, bold) <= maxW) return s;
+    var out = '';
+    for (var i = 0; i < s.length; i++) {
+      if (textWidth(out + s.charAt(i) + '…', size, mono, bold) > maxW) break;
+      out += s.charAt(i);
+    }
+    return out.replace(/\s+$/, '') + '…';
+  }
+
+  /* ---------- normalisation ---------- */
+
+  function str(v) { return v == null ? '' : String(v); }
+
+  function normalize(spec) {
+    spec = spec || {};
+    var meta = Object.assign({}, spec.meta || {});
+    var stagesIn = Array.isArray(spec.stages) ? spec.stages : [];
+    var layout = LAYOUTS.indexOf(meta.layout) >= 0 ? meta.layout : (stagesIn.length ? 'horizontal' : 'layered');
+    var detail = DETAIL[meta.detail] ? meta.detail : 'working';
+
+    var lanes = (spec.lanes || []).map(function (l, i) {
+      return Object.assign({ descriptor: '', dimension: '', help: '' }, l, {
+        index: i, id: str(l.id), label: str(l.label || l.id)
+      });
+    });
+    var laneIdx = {};
+    lanes.forEach(function (l) { laneIdx[l.id] = l.index; });
+
+    var cards = (spec.cards || []).map(function (c, i) {
+      var tags = Array.isArray(c.tags) ? c.tags.map(str) : [];
+      return Object.assign({ subtitle: '', variant: 'standard', evidence: 'confirmed', help: '' }, c, {
+        id: str(c.id), title: str(c.title || c.id), lane: str(c.lane), stage: c.stage == null ? null : str(c.stage),
+        tags: tags, order: i
+      });
+    });
+
+    var stages;
+    if (layout === 'layered') {
+      var seen = {};
+      cards.forEach(function (c) {
+        if (c.col == null) c.col = seen[c.lane] || 0;
+        seen[c.lane] = Math.max(seen[c.lane] || 0, c.col + 1);
+      });
+      var maxCol = 0;
+      cards.forEach(function (c) { maxCol = Math.max(maxCol, c.col); });
+      stages = [];
+      for (var k = 0; k <= maxCol; k++) stages.push({ id: '__col' + k, label: '', descriptor: '', index: k, implicit: true });
+      cards.forEach(function (c) { c.stage = '__col' + c.col; c.slot = 0; });
+    } else {
+      stages = stagesIn.map(function (s, i) {
+        return Object.assign({ descriptor: '', help: '' }, s, { id: str(s.id), label: str(s.label || s.id), index: i });
+      });
+    }
+    var stageIdx = {};
+    stages.forEach(function (s) { stageIdx[s.id] = s.index; });
+
+    if (layout !== 'layered') {
+      var cells = {};
+      cards.forEach(function (c) {
+        var key = c.lane + '|' + c.stage;
+        (cells[key] = cells[key] || []).push(c);
+      });
+      Object.keys(cells).forEach(function (key) {
+        var list = cells[key], used = {};
+        list.forEach(function (c) { if (typeof c.slot === 'number' && c.slot >= 0) used[c.slot] = true; });
+        list.forEach(function (c) {
+          if (typeof c.slot === 'number' && c.slot >= 0) return;
+          var s = 0;
+          while (used[s]) s++;
+          c.slot = s; used[s] = true;
+        });
+      });
+    }
+
+    var cardMap = {};
+    cards.forEach(function (c) { cardMap[c.id] = c; });
+
+    var edges = (spec.edges || []).map(function (e, i) {
+      return Object.assign({ kind: 'flow', label: '', help: '' }, e, {
+        id: str(e.id || ('e' + (i + 1))), from: str(e.from), to: str(e.to)
+      });
+    });
+
+    return {
+      spec: spec, meta: meta, layout: layout, detail: detail,
+      lanes: lanes, stages: stages, cards: cards, edges: edges,
+      branches: spec.branches || [], laneIdx: laneIdx, stageIdx: stageIdx, cardMap: cardMap,
+      laneCaptions: spec.laneCaptions || []
+    };
+  }
+
+  /* ---------- layout ---------- */
+
+  function computeLayout(spec, state) {
+    var m = normalize(spec);
+    state = state || {};
+    var collapsed = state.collapsed || {};
+    var orient = m.layout === 'vertical' ? 'v' : 'h';
+    var layered = m.layout === 'layered';
+    var d = DETAIL[m.detail];
+    var spacing = { compact: 0.85, normal: 1, roomy: 1.6 }[m.meta.spacing] || 1;
+    var cardW = d.cardW, g = Math.round(d.gutter * spacing);
+    var innerW = cardW - 2 * K.padX;
+
+    var titleLines = m.cards.some(function (c) {
+      return lineCount(c.title, K.titleSize, innerW - (c.checklist ? 22 : 0), false, true) > 1;
+    }) ? 2 : 1;
+    var hasSub = m.cards.some(function (c) { return !!c.subtitle; });
+    var hasTags = m.cards.some(function (c) { return c.tags && c.tags.length; });
+    var cardH = 2 * K.padY + titleLines * K.titleLH + (hasSub ? K.subLH + 2 : 0) + (hasTags ? K.tagsH + 5 : 0);
+
+    var cardT = orient === 'h' ? cardW : cardH;
+    var cardL = orient === 'h' ? cardH : cardW;
+    var T0 = orient === 'h' ? K.laneLabelW : K.laneHeaderH;
+    var L0 = layered ? K.layeredTop : (orient === 'h' ? K.stageHeaderH : K.stageLabelW);
+
+    var stTrack = (!layered && spec.stateTrack && (spec.stateTrack.states || []).length) ? spec.stateTrack : null;
+    var RIB = stTrack ? 36 : 0;
+    var L0head = L0;
+    L0 = L0 + RIB;
+    var stageSize = cardT + g;
+    var S = m.stages.map(function (s, i) { return T0 + i * stageSize; });
+    var tEnd = T0 + m.stages.length * stageSize + K.endPad;
+
+    var slots = {};
+    m.cards.forEach(function (c) { slots[c.lane] = Math.max(slots[c.lane] || 0, (c.slot || 0) + 1); });
+    var captionAfter = {};
+    m.laneCaptions.forEach(function (c) { captionAfter[str(c.after)] = str(c.text); });
+
+    var lanePos = [];
+    var lc = L0;
+    m.lanes.forEach(function (lane) {
+      var isCol = !!collapsed[lane.id];
+      var n = Math.max(1, slots[lane.id] || 0);
+      var cap = layered && captionAfter[lane.id] ? K.captionBand : 0;
+      var bandEnd = K.bandEnd + cap;
+      var size = isCol ? K.collapsedLane + cap : (K.bandStart + n * cardL + (n - 1) * K.slotGap + bandEnd);
+      lanePos.push({ start: lc, size: size, end: lc + size, collapsed: isCol, n: n, bandEnd: bandEnd, caption: cap });
+      lc += size;
+    });
+    var lanesEnd = lc;
+    var lEnd = lc + K.endPad;
+
+    function P(t, l) { return orient === 'h' ? { x: t, y: l } : { x: l, y: t }; }
+    function R(r) {
+      var a = P(r.t0, r.l0), b = P(r.t1, r.l1);
+      return { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), w: Math.abs(b.x - a.x), h: Math.abs(b.y - a.y) };
+    }
+
+    // card and pill rectangles (abstract)
+    var rects = {}, pills = {};
+    m.cards.forEach(function (c) {
+      var li = m.laneIdx[c.lane], si = m.stageIdx[c.stage];
+      if (li == null || si == null) return;
+      var lp = lanePos[li];
+      var t0 = S[si] + g / 2;
+      if (lp.collapsed) {
+        var key = c.lane + '|' + c.stage;
+        if (!pills[key]) {
+          var pT = orient === 'h' ? K.pillW : K.pillH, pL = orient === 'h' ? K.pillH : K.pillW;
+          var tc = t0 + cardT / 2, lcen = lp.start + K.collapsedLane / 2;
+          pills[key] = { key: key, lane: c.lane, stage: c.stage, li: li, si: si, count: 0, cards: [],
+            t0: tc - pT / 2, t1: tc + pT / 2, l0: lcen - pL / 2, l1: lcen + pL / 2 };
+        }
+        pills[key].count += 1;
+        pills[key].cards.push(c.id);
+        rects[c.id] = { t0: pills[key].t0, t1: pills[key].t1, l0: pills[key].l0, l1: pills[key].l1, li: li, si: si, pill: key };
+      } else {
+        var l0 = lp.start + K.bandStart + (c.slot || 0) * (cardL + K.slotGap);
+        rects[c.id] = { t0: t0, t1: t0 + cardT, l0: l0, l1: l0 + cardL, li: li, si: si };
+      }
+    });
+
+    // occupancy helpers
+    var rectList = Object.keys(rects).map(function (id) { return { id: id, r: rects[id] }; });
+    function rowFree(li, lcoord, sFrom, sTo) {
+      return !rectList.some(function (o) {
+        var r = o.r;
+        return r.li === li && r.si > sFrom && r.si < sTo && lcoord >= r.l0 - 1 && lcoord <= r.l1 + 1;
+      });
+    }
+    function colFree(a, b, idA, idB) {
+      var lo = a.l0 < b.l0 ? a.l1 : b.l1;
+      var hi = a.l0 < b.l0 ? b.l0 : a.l0;
+      return !rectList.some(function (o) {
+        if (o.id === idA || o.id === idB) return false;
+        var r = o.r;
+        if (r.pill && (r.pill === a.pill || r.pill === b.pill)) return false;
+        return r.si === a.si && r.l1 > lo && r.l0 < hi;
+      });
+    }
+
+    // track allocation so parallel connectors do not sit on top of each other
+    var use = {};
+    function track(key, step, max) {
+      var i = use[key] = (use[key] == null ? 0 : use[key] + 1);
+      var k = Math.ceil(i / 2) * (i % 2 ? -1 : 1);
+      var off = k * step;
+      if (max <= 0) return 0;
+      while (Math.abs(off) > max) off = off > 0 ? off - 2 * max : off + 2 * max;
+      return off;
+    }
+    function gutterCenter(k) { return k < 0 ? T0 + g / 4 : S[k] + stageSize; }
+    function gutterX(k) { return gutterCenter(k) + track('g' + k, K.gutterStep, k < 0 ? g / 4 - 5 : g / 2 - 10); }
+    function bandStartL(li) {
+      var lp = lanePos[li];
+      if (lp.collapsed) return lp.start + 7;
+      return lp.start + K.bandStart / 2 + track('bs' + li, K.bandStep, K.bandStart / 2 - 4);
+    }
+    function bandEndL(li) {
+      var lp = lanePos[li];
+      if (lp.collapsed) return lp.start + K.collapsedLane - 7;
+      return lp.end - lp.bandEnd + K.bandEnd / 2 + track('be' + li, K.bandStep, K.bandEnd / 2 - 4);
+    }
+
+    function routeTime(a, b, ida, idb, pa, pb) {
+      var am = pa != null ? pa : (a.l0 + a.l1) / 2, bm = pb != null ? pb : (b.l0 + b.l1) / 2;
+      if (b.si > a.si) {
+        if (b.si === a.si + 1) {
+          var gx = am === bm ? gutterCenter(a.si) : gutterX(a.si);
+          return [[a.t1, am], [gx, am], [gx, bm], [b.t0, bm]];
+        }
+        if (rowFree(a.li, am, a.si, b.si)) {
+          var gx2 = am === bm ? gutterCenter(b.si - 1) : gutterX(b.si - 1);
+          return [[a.t1, am], [gx2, am], [gx2, bm], [b.t0, bm]];
+        }
+        if (rowFree(b.li, bm, a.si, b.si)) {
+          var gx3 = gutterX(a.si);
+          return [[a.t1, am], [gx3, am], [gx3, bm], [b.t0, bm]];
+        }
+        var gs = gutterX(a.si), gt = gutterX(b.si - 1), cy = bandStartL(a.li);
+        return [[a.t1, am], [gs, am], [gs, cy], [gt, cy], [gt, bm], [b.t0, bm]];
+      }
+      if (b.si === a.si) {
+        if (colFree(a, b, ida, idb)) {
+          var tm = (Math.max(a.t0, b.t0) + Math.min(a.t1, b.t1)) / 2;
+          if (b.l0 >= a.l1) return [[tm, a.l1], [tm, b.l0]];
+          if (a.l0 >= b.l1) return [[tm, a.l0], [tm, b.l1]];
+        }
+        var gp = gutterX(a.si - 1);
+        return [[a.t0, am], [gp, am], [gp, bm], [b.t0, bm]];
+      }
+      var ga = gutterX(a.si), gb = gutterX(b.si - 1), cy2 = bandEndL(a.li);
+      return [[a.t1, am], [ga, am], [ga, cy2], [gb, cy2], [gb, bm], [b.t0, bm]];
+    }
+
+    function routeLayered(a, b) {
+      var at = (a.t0 + a.t1) / 2, bt = (b.t0 + b.t1) / 2;
+      if (b.li > a.li) {
+        var yb = bandEndL(a.li);
+        if (b.li === a.li + 1) return [[at, a.l1], [at, yb], [bt, yb], [bt, b.l0]];
+        var gx = gutterX(b.si - 1), ys = bandStartL(b.li);
+        return [[at, a.l1], [at, yb], [gx, yb], [gx, ys], [bt, ys], [bt, b.l0]];
+      }
+      if (b.li === a.li) {
+        var am = (a.l0 + a.l1) / 2;
+        if (b.si > a.si && rowFree(a.li, am, a.si, b.si)) return [[a.t1, am], [b.t0, am]];
+        var ys2 = bandStartL(a.li);
+        return [[at, a.l0], [at, ys2], [bt, ys2], [bt, b.l0]];
+      }
+      var ys3 = bandStartL(a.li), gx4 = gutterX(b.si - 1), ybb = bandEndL(b.li);
+      return [[at, a.l0], [at, ys3], [gx4, ys3], [gx4, ybb], [bt, ybb], [bt, b.l1]];
+    }
+
+    function simplify(pts) {
+      var out = [];
+      pts.forEach(function (p) {
+        var last = out[out.length - 1];
+        if (last && Math.abs(last.x - p.x) < 0.01 && Math.abs(last.y - p.y) < 0.01) return;
+        out.push(p);
+      });
+      var res = [];
+      out.forEach(function (p, i) {
+        if (i > 0 && i < out.length - 1) {
+          var a = out[i - 1], c = out[i + 1];
+          var colX = Math.abs(a.x - p.x) < 0.01 && Math.abs(c.x - p.x) < 0.01;
+          var colY = Math.abs(a.y - p.y) < 0.01 && Math.abs(c.y - p.y) < 0.01;
+          if (colX || colY) return;
+        }
+        res.push(p);
+      });
+      return res;
+    }
+
+    // collision-aware label placement: labels never sit on cards, headers or other labels
+    var placed = [];
+    var obstacles = [];
+    function hit(b) {
+      if (b.x < minX || b.y < minY || b.x + b.w > maxX || b.y + b.h > maxY) return true;
+      for (var i = 0; i < obstacles.length; i++) { var o = obstacles[i]; if (b.x < o.x + o.w + 3 && b.x + b.w > o.x - 3 && b.y < o.y + o.h + 3 && b.y + b.h > o.y - 3) return true; }
+      for (var j = 0; j < placed.length; j++) { var q = placed[j]; if (b.x < q.x + q.w + 4 && b.x + b.w > q.x - 4 && b.y < q.y + q.h + 2 && b.y + b.h > q.y - 2) return true; }
+      return false;
+    }
+    var minX, minY, maxX, maxY;
+    function labelSpot(pts, text) {
+      if (!text) return null;
+      var w = Math.min(textWidth(text, 12, false, false) + 14, 220), h = 19;
+      var segs = [];
+      for (var i = 0; i < pts.length - 1; i++) {
+        var a = pts[i], b = pts[i + 1];
+        var horiz = Math.abs(a.y - b.y) < 0.01;
+        segs.push({ a: a, b: b, horiz: horiz, len: horiz ? Math.abs(a.x - b.x) : Math.abs(a.y - b.y) });
+      }
+      var hs = segs.filter(function (s) { return s.horiz; }).sort(function (x, y) { return y.len - x.len; });
+      var vs = segs.filter(function (s) { return !s.horiz; }).sort(function (x, y) { return y.len - x.len; });
+      var c, box;
+      for (var k = 0; k < hs.length; k++) {
+        c = { x: (hs[k].a.x + hs[k].b.x) / 2, y: hs[k].a.y };
+        box = { x: c.x - w / 2, y: c.y - h / 2, w: w, h: h };
+        if (hs[k].len >= 24 && !hit(box)) { placed.push(box); return { x: c.x, y: c.y, w: w, maxW: 220, mode: 'inline', align: 'center' }; }
+      }
+      for (var v = 0; v < vs.length; v++) {
+        if (vs[v].len < h + 10) continue;
+        c = { x: vs[v].a.x, y: (vs[v].a.y + vs[v].b.y) / 2 };
+        box = { x: c.x + 6, y: c.y - h / 2, w: w, h: h };
+        if (!hit(box)) { placed.push(box); return { x: c.x + 6, y: c.y, w: w, maxW: 220, mode: 'inline', align: 'left' }; }
+        box = { x: c.x - 6 - w, y: c.y - h / 2, w: w, h: h };
+        if (!hit(box)) { placed.push(box); return { x: c.x - 6, y: c.y, w: w, maxW: 220, mode: 'inline', align: 'right' }; }
+      }
+      var longest = segs.slice().sort(function (x, y) { return y.len - x.len; })[0];
+      var dx = longest ? (longest.a.x + longest.b.x) / 2 : pts[0].x, dy = longest ? (longest.a.y + longest.b.y) / 2 : pts[0].y;
+      placed.push({ x: dx - 8, y: dy - 8, w: 16, h: 16 });
+      return { x: dx, y: dy, w: 16, maxW: 0, mode: 'dot', align: 'center' };
+    }
+
+    // edges: pass 1 finds which card side each connector uses, pass 2 spreads the
+    // attach points along that side (sorted by where the other end is) so connectors never share a point.
+    function sideOf(r, pt) {
+      if (Math.abs(pt[0] - r.t1) < 0.01) return 'tEnd';
+      if (Math.abs(pt[0] - r.t0) < 0.01) return 'tStart';
+      return null;
+    }
+    var live = [];
+    var seenPair = {};
+    m.edges.forEach(function (e) {
+      var a = rects[e.from], b = rects[e.to];
+      if (!a || !b) return;
+      if (a.pill && b.pill && a.pill === b.pill) return;
+      var pairKey = (a.pill || e.from) + '>' + (b.pill || e.to) + '>' + e.kind;
+      if ((a.pill || b.pill) && seenPair[pairKey]) return;
+      seenPair[pairKey] = true;
+      live.push({ e: e, a: a, b: b });
+    });
+    var portOf = {};
+    if (!layered) {
+      var groups = {};
+      live.forEach(function (x, i) {
+        var raw = routeTime(x.a, x.b, x.e.from, x.e.to);
+        var sa = sideOf(x.a, raw[0]), sb = sideOf(x.b, raw[raw.length - 1]);
+        var bm0 = (x.b.l0 + x.b.l1) / 2, am0 = (x.a.l0 + x.a.l1) / 2;
+        var keyA = (x.a.pill || x.e.from) + '|' + sa, keyB = (x.b.pill || x.e.to) + '|' + sb;
+        if (sa) (groups[keyA] = groups[keyA] || { r: x.a, list: [] }).list.push({ i: i, role: 'a', other: bm0, t: x.b.t0 });
+        if (sb) (groups[keyB] = groups[keyB] || { r: x.b, list: [] }).list.push({ i: i, role: 'b', other: am0, t: x.a.t0 });
+      });
+      Object.keys(groups).forEach(function (k) {
+        var gr = groups[k], n = gr.list.length;
+        if (n < 2) return;
+        gr.list.sort(function (p, q) { return p.other - q.other || p.t - q.t; });
+        var span = gr.r.l1 - gr.r.l0, lo = gr.r.l0 + span * 0.22, hi = gr.r.l1 - span * 0.22;
+        gr.list.forEach(function (it, j) {
+          var pos = lo + (hi - lo) * j / (n - 1);
+          portOf[it.i + it.role] = pos;
+        });
+      });
+      use = {};
+    }
+    var edges = [];
+    live.forEach(function (x, i) {
+      var e = x.e, a = x.a, b = x.b;
+      var raw = layered ? routeLayered(a, b) : routeTime(a, b, e.from, e.to, portOf[i + 'a'], portOf[i + 'b']);
+      var pts = simplify(raw.map(function (p) { return P(p[0], p[1]); }));
+      var backward = layered ? (b.li < a.li || (b.li === a.li && b.si < a.si)) : b.si < a.si;
+      edges.push({
+        id: e.id, from: e.from, to: e.to, kind: EDGE_KINDS.indexOf(e.kind) >= 0 ? e.kind : 'flow',
+        branch: e.branch || '', label: e.label || '', help: e.help || '', points: pts, backward: backward,
+        relation: e.relation || '', evidence: e.evidence || 'confirmed',
+        labelSpot: null, toCollapsed: !!b.pill, fromCollapsed: !!a.pill
+      });
+    });
+    Object.keys(rects).forEach(function (id) { obstacles.push(R(rects[id])); });
+    var captionSpots = {};
+    if (layered) {
+      m.lanes.forEach(function (lane, li) {
+        var text = captionAfter[lane.id];
+        if (!text) return;
+        var lp = lanePos[li];
+        var y0 = lp.end - K.captionBand + 3, y1 = lp.end - 3;
+        var xs = [];
+        edges.forEach(function (e) {
+          for (var k = 0; k < e.points.length - 1; k++) {
+            var a = e.points[k], b = e.points[k + 1];
+            if (Math.abs(a.x - b.x) < 0.01 && Math.min(a.y, b.y) < y1 && Math.max(a.y, b.y) > y0) xs.push(a.x);
+          }
+        });
+        xs.sort(function (p, q) { return p - q; });
+        var lo = T0 + 10, hi = tEnd - K.endPad - 10, best = [lo, lo], cur = lo;
+        xs.concat([hi + 8]).forEach(function (x) {
+          var end = Math.min(x - 8, hi);
+          if (end - cur > best[1] - best[0]) best = [cur, end];
+          cur = Math.max(cur, x + 8);
+        });
+        var want = textWidth('↓ ' + text, 12, false, true) + 14;
+        var w = Math.min(want, best[1] - best[0]);
+        captionSpots[lane.id] = { x: best[0], y: y0, w: w, h: y1 - y0, full: want <= w + 0.5 };
+        obstacles.push({ x: best[0], y: y0, w: w, h: y1 - y0 });
+      });
+    }
+    var lim0 = P(T0, L0), lim1 = P(tEnd - 4, lanesEnd - 2);
+    minX = Math.min(lim0.x, lim1.x) + 2; minY = Math.min(lim0.y, lim1.y) + 2;
+    maxX = Math.max(lim0.x, lim1.x); maxY = Math.max(lim0.y, lim1.y);
+    edges.slice().sort(function (x, y) { return (x.label ? 0 : 1) - (y.label ? 0 : 1); }).forEach(function (e) {
+      var text = (e.branch ? e.branch + ' · ' : '') + (e.evidence !== 'confirmed' ? '? ' : '') + e.label;
+      e.labelSpot = e.label ? labelSpot(e.points, text) : null;
+    });
+    var noteNo = 0;
+    edges.forEach(function (e) { if (e.labelSpot && e.labelSpot.mode === 'dot') { noteNo += 1; e.labelSpot.note = noteNo; } });
+
+    // scene objects in screen coordinates
+    var lanesOut = m.lanes.map(function (lane, i) {
+      var lp = lanePos[i];
+      var count = m.cards.filter(function (c) { return c.lane === lane.id; }).length;
+      return Object.assign({}, lane, {
+        collapsed: lp.collapsed, count: count, start: lp.start, end: lp.end,
+        band: R({ t0: 0, t1: tEnd - K.endPad, l0: lp.start, l1: lp.end }),
+        labelRect: R({ t0: 0, t1: T0, l0: lp.start, l1: lp.end }),
+        caption: captionAfter[lane.id] && layered && captionSpots[lane.id] ? {
+          text: captionAfter[lane.id], full: captionSpots[lane.id].full,
+          rect: { x: captionSpots[lane.id].x, y: captionSpots[lane.id].y, w: captionSpots[lane.id].w, h: captionSpots[lane.id].h }
+        } : null
+      });
+    });
+    var stagesOut = m.stages.map(function (s, i) {
+      return Object.assign({}, s, {
+        start: S[i], end: S[i] + stageSize,
+        headerRect: layered ? null : R({ t0: S[i], t1: S[i] + stageSize, l0: 0, l1: L0head })
+      });
+    });
+    var cardsOut = m.cards.filter(function (c) { return rects[c.id] && !rects[c.id].pill; }).map(function (c) {
+      return Object.assign({}, c, { rect: R(rects[c.id]) });
+    });
+    var pillsOut = Object.keys(pills).map(function (k) { var p = pills[k]; return Object.assign({}, p, { rect: R(p) }); });
+    var guides = [];
+    if (!layered) {
+      for (var gi = 1; gi < m.stages.length; gi++) {
+        var a1 = P(S[gi], L0head), b1 = P(S[gi], lanesEnd);
+        guides.push({ x1: a1.x, y1: a1.y, x2: b1.x, y2: b1.y });
+      }
+    }
+    var size = P(tEnd, lEnd);
+    var ribbon = null;
+    if (stTrack) {
+      ribbon = { label: str(stTrack.label || 'Record state'), help: str(stTrack.help || ''),
+        labelRect: R({ t0: 0, t1: T0, l0: L0head, l1: L0head + RIB }), segs: [] };
+      stTrack.states.forEach(function (st) {
+        var a = m.stageIdx[str(st.from)], b = m.stageIdx[str(st.to || st.from)];
+        if (a == null || b == null) return;
+        if (b < a) { var tmp = a; a = b; b = tmp; }
+        ribbon.segs.push({ label: str(st.label), help: str(st.help || ''), tone: str(st.tone || 'primary'), from: a, to: b,
+          rect: R({ t0: S[a] + 5, t1: S[b] + stageSize - 5, l0: L0head + 6, l1: L0head + RIB - 6 }) });
+      });
+    }
+
+    return {
+      version: VERSION, model: m, layout: m.layout, orient: orient, detail: m.detail,
+      width: Math.ceil(size.x), height: Math.ceil(size.y),
+      T0: T0, L0: L0, L0head: L0head, ribbon: ribbon, cardW: cardW, cardH: cardH, gutter: g, titleLines: titleLines,
+      hasSub: hasSub, hasTags: hasTags, stageSize: stageSize, tEnd: tEnd, lEnd: lEnd, lanesEnd: lanesEnd,
+      lanes: lanesOut, stages: stagesOut, cards: cardsOut, pills: pillsOut, edges: edges, guides: guides,
+      lanePos: lanePos, stageStarts: S
+    };
+  }
+
+  /* ---------- pagination plan for print formats ---------- */
+
+  function planPages(scene, pageW, pageH, opts) {
+    opts = opts || {};
+    var margin = opts.margin || 36, headH = opts.headH || 46, firstExtra = opts.firstExtra || 96;
+    var cw = pageW - 2 * margin, ch = pageH - 2 * margin - headH - firstExtra;
+    var layered = scene.layout === 'layered';
+    var horizontalFlow = scene.orient === 'h' && !layered;
+    var pages = [], warnings = [], scale;
+    if (!layered) {
+      var crossScreen = horizontalFlow ? scene.height : scene.width;
+      var crossAvail = horizontalFlow ? ch : cw;
+      var flowAvail = horizontalFlow ? cw : ch;
+      scale = Math.min(1, crossAvail / crossScreen);
+      var limit = flowAvail / scale;
+      var i = 0, n = scene.stages.length;
+      while (i < n) {
+        var start = i, used = scene.T0;
+        while (i < n && (used + scene.stageSize <= limit || i === start)) { used += scene.stageSize; i++; }
+        pages.push({ kind: 'stages', from: start, to: i - 1,
+          f0: scene.stageStarts[start], f1: scene.stageStarts[i - 1] + scene.stageSize, head: scene.T0 });
+      }
+      if (scene.T0 + scene.stageSize > limit) {
+        scale = Math.min(scale, flowAvail / (scene.T0 + scene.stageSize));
+        warnings.push('A single stage does not fit the page at full size; the diagram is scaled down.');
+      }
+    } else {
+      scale = Math.min(1, cw / scene.width);
+      var lim = ch / scale, j = 0, nl = scene.lanes.length;
+      while (j < nl) {
+        var st = j, u = scene.L0;
+        while (j < nl && (u + (scene.lanes[j].end - scene.lanes[j].start) <= lim || j === st)) { u += scene.lanes[j].end - scene.lanes[j].start; j++; }
+        pages.push({ kind: 'lanes', from: st, to: j - 1, f0: scene.lanes[st].start, f1: scene.lanes[j - 1].end, head: scene.L0 });
+      }
+    }
+    if (scale < 0.6) warnings.push('Diagram is scaled to ' + Math.round(scale * 100) + '% to fit the page; consider the canvas format or a larger page.');
+    return { scale: scale, pages: pages, warnings: warnings, margin: margin, headH: headH, firstExtra: firstExtra };
+  }
+
+  /* ---------- HTML scene rendering (used by the runtime) ---------- */
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function px(n) { return Math.round(n * 10) / 10 + 'px'; }
+  function pathD(pts) { return pts.map(function (p, i) { return (i ? 'L' : 'M') + Math.round(p.x * 10) / 10 + ' ' + Math.round(p.y * 10) / 10; }).join(' '); }
+
+  function renderSceneHTML(scene, state, opts) {
+    state = state || {};
+    opts = opts || {};
+    var m = scene.model;
+    var sel = state.selected || null;
+    var dimCards = state.dimCards || {};
+    var dimEdges = state.dimEdges || {};
+    var hot = state.hotEdges || {};
+    var checks = state.checks || {};
+    var interactive = opts.interactive !== false;
+    var out = [];
+    var W = scene.width, H = scene.height;
+    var stickyLeft = scene.orient === 'h';
+
+    out.push('<div class="sl-diagram sl-' + scene.layout + '" style="width:' + px(W) + ';height:' + px(H) + '">');
+
+    // lane bands
+    scene.lanes.forEach(function (lane, i) {
+      var r = lane.band;
+      out.push('<div class="sl-band ' + (i % 2 ? 'sl-band-b' : 'sl-band-a') + (lane.collapsed ? ' sl-band-collapsed' : '') +
+        '" style="left:' + px(r.x) + ';top:' + px(r.y) + ';width:' + px(r.w) + ';height:' + px(r.h) + '"></div>');
+    });
+
+    // svg: guides + edges
+    out.push('<svg class="sl-edges" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true">');
+    out.push('<defs>');
+    EDGE_KINDS.forEach(function (k) {
+      out.push('<marker id="sl-arr-' + k + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="sl-arrow sl-arrow-' + k + '"/></marker>');
+    });
+    out.push('<marker id="sl-arr-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="sl-arrow sl-arrow-hot"/></marker>');
+    out.push('</defs>');
+    scene.guides.forEach(function (gd) {
+      out.push('<line class="sl-guide" x1="' + gd.x1 + '" y1="' + gd.y1 + '" x2="' + gd.x2 + '" y2="' + gd.y2 + '"/>');
+    });
+    scene.edges.forEach(function (e) {
+      var cls = 'sl-edge sl-edge-' + e.kind + (dimEdges[e.id] ? ' sl-dim' : '') + (hot[e.id] ? ' sl-hot' : '');
+      var marker = hot[e.id] ? 'hot' : e.kind;
+      var eh = [(e.branch ? 'Branch ' + e.branch + ': ' : '') + (e.label || ''), e.relation ? 'Relationship: ' + e.relation : '', e.evidence !== 'confirmed' ? (e.evidence === 'assumed' ? 'Assumption' : 'Unconfirmed, verify in the org') : '', e.help].filter(Boolean).join('. ');
+      out.push('<g class="' + cls + (e.evidence !== 'confirmed' ? ' sl-edge-q' : '') + '" data-edge="' + esc(e.id) + '"' + (interactive && eh ? ' data-help="' + esc(eh) + '"' : '') + '>');
+      out.push('<path class="sl-edge-hit" d="' + pathD(e.points) + '"/>');
+      out.push('<path class="sl-edge-line" d="' + pathD(e.points) + '" marker-end="url(#sl-arr-' + marker + ')"/>');
+      out.push('</g>');
+    });
+    out.push('</svg>');
+
+    // stage headers
+    if (scene.layout !== 'layered') {
+      scene.stages.forEach(function (s, i) {
+        var r = s.headerRect;
+        out.push('<div class="sl-stage' + (scene.orient === 'v' ? ' sl-stage-v' : '') + '" style="left:' + px(r.x) + ';top:' + px(r.y) + ';width:' + px(r.w) + ';height:' + px(r.h) + '"' + (s.help ? ' data-help="' + esc(s.help) + '" tabindex="0"' : '') + '>' +
+          '<span class="sl-stage-num">' + (i + 1) + '</span><span class="sl-stage-text"><span class="sl-stage-label">' + esc(s.label) + '</span>' +
+          (s.descriptor ? '<span class="sl-stage-desc">' + esc(s.descriptor) + '</span>' : '') + '</span></div>');
+      });
+    }
+
+    // state ribbon
+    if (scene.ribbon) {
+      scene.ribbon.segs.forEach(function (sg) {
+        var r = sg.rect;
+        out.push('<div class="sl-ribbon-seg t-' + esc(sg.tone) + (scene.orient === 'v' ? ' sl-ribbon-v' : '') + '" data-ribbon="' + sg.from + '-' + sg.to + '"' + (sg.help ? ' tabindex="0" data-help="' + esc(sg.help) + '"' : '') +
+          ' style="left:' + px(r.x) + ';top:' + px(r.y) + ';width:' + px(r.w) + ';height:' + px(r.h) + '"><span>' + esc(sg.label) + '</span></div>');
+      });
+    }
+    // lane captions (layered)
+    scene.lanes.forEach(function (lane) {
+      if (!lane.caption) return;
+      var r = lane.caption.rect;
+      out.push('<div class="sl-caption" style="left:' + px(r.x) + ';top:' + px(r.y) + ';max-width:' + px(r.w) + '"' + (lane.caption.full ? '' : ' tabindex="0" data-help="' + esc(lane.caption.text) + '"') + '><span class="sl-caption-arrow" aria-hidden="true">↓</span> ' + esc(lane.caption.text) + '</div>');
+    });
+
+    // collapsed pills
+    scene.pills.forEach(function (p) {
+      var r = p.rect;
+      out.push('<button type="button" class="sl-pill" data-lane="' + esc(p.lane) + '" style="left:' + px(r.x) + ';top:' + px(r.y) + ';width:' + px(r.w) + ';height:' + px(r.h) + '">' + p.count + (p.count === 1 ? ' card' : ' cards') + '</button>');
+    });
+
+    // cards
+    scene.cards.forEach(function (c) {
+      var r = c.rect;
+      var variant = VARIANTS.indexOf(c.variant) >= 0 ? c.variant : 'standard';
+      var cls = 'sl-card v-' + variant + ' sl-lane-' + c.lane + (sel === c.id ? ' sl-selected' : '') + (dimCards[c.id] ? ' sl-dim' : '') + (state.linked && state.linked[c.id] ? ' sl-linked' : '');
+      var aria = c.title + (c.subtitle ? ', ' + c.subtitle : '');
+      out.push('<div class="' + cls + '" data-card="' + esc(c.id) + '" data-comment-target' + (interactive ? ' tabindex="0" role="button" aria-label="' + esc(aria) + '"' : '') +
+        (c.help ? ' data-help="' + esc(c.help) + '"' : '') +
+        ' style="left:' + px(r.x) + ';top:' + px(r.y) + ';width:' + px(r.w) + ';height:' + px(r.h) + '">');
+      out.push('<div class="sl-card-title sl-lines-' + scene.titleLines + (c.checklist ? ' sl-has-check' : '') + '">' + (variant === 'decision' ? '<span class="sl-diamond" aria-hidden="true">◆</span>' : '') + esc(c.title) + '</div>');
+      if (scene.hasSub) out.push('<div class="sl-card-sub">' + esc(c.subtitle || '') + '</div>');
+      if (scene.hasTags) {
+        out.push('<div class="sl-card-tags">' + (c.tags || []).slice(0, 3).map(function (t) { return '<span class="sl-tag' + (/^New /.test(t) ? ' sl-tag-new' : '') + '">' + esc(t) + '</span>'; }).join('') +
+          ((c.tags || []).length > 3 ? '<span class="sl-tag sl-tag-more">+' + ((c.tags || []).length - 3) + '</span>' : '') + '</div>');
+      }
+      if (c.checklist) {
+        out.push('<label class="sl-card-check" title="Mark as done"><input type="checkbox" data-check="card:' + esc(c.id) + '"' + (checks['card:' + c.id] ? ' checked' : '') + ' aria-label="Done: ' + esc(c.title) + '"></label>');
+      }
+      var badges = [];
+      if (c.branch) badges.push('<span class="sl-badge sl-badge-branch" data-help="Branch ' + esc(c.branch) + '">' + esc(c.branch) + '</span>');
+      if (c.evidence === 'unconfirmed' || c.evidence === 'assumed') badges.push('<span class="sl-badge sl-badge-q" data-help="' + (c.evidence === 'assumed' ? 'Assumption: not confirmed by a source' : 'Unconfirmed: verify in the org before relying on it') + '">?</span>');
+      if (badges.length) out.push('<span class="sl-badges">' + badges.join('') + '</span>');
+      out.push('</div>');
+    });
+
+    // edge labels
+    scene.edges.forEach(function (e) {
+      var s = e.labelSpot;
+      if (!s) return;
+      var text = e.label || '';
+      var cls = 'sl-elabel' + (dimEdges[e.id] ? ' sl-dim' : '') + (hot[e.id] ? ' sl-hot' : '');
+      if (s.mode === 'dot') {
+        out.push('<span class="' + cls + ' sl-elabel-dot" data-edge="' + esc(e.id) + '" tabindex="0" role="note" aria-label="Connector note ' + s.note + ': ' + esc(text) + '" data-help="' + esc((e.branch ? 'Branch ' + e.branch + ': ' : '') + text) + '" style="left:' + px(s.x) + ';top:' + px(s.y) + '">' + s.note + '</span>');
+      } else {
+        out.push('<span class="' + cls + ' sl-al-' + (s.align || 'center') + '" data-edge="' + esc(e.id) + '" style="left:' + px(s.x) + ';top:' + px(s.y) + ';max-width:' + px(s.maxW) + '">' +
+          (e.branch ? '<b class="sl-elabel-branch">' + esc(e.branch) + '</b>' : '') + (e.evidence !== 'confirmed' ? '<b class="sl-elabel-q">?</b>' : '') + esc(text) + '</span>');
+      }
+    });
+
+    // lane labels (sticky column in horizontal layouts)
+    if (stickyLeft) out.push('<div class="sl-lanecol" style="width:' + px(scene.T0) + ';height:' + px(H) + '">');
+    if (scene.layout !== 'layered') {
+      out.push('<div class="sl-corner" style="left:0;top:0;width:' + px(scene.orient === 'h' ? scene.T0 : scene.L0head) + ';height:' + px(scene.orient === 'h' ? scene.L0head : scene.T0) + '">' +
+        (scene.orient === 'h' ? 'Lanes ↓<br>Stages →' : 'Stages ↓<br>Lanes →') + '</div>');
+    }
+    if (scene.ribbon) {
+      var rl = scene.ribbon.labelRect;
+      out.push('<div class="sl-ribbon-label" style="left:' + px(rl.x) + ';top:' + px(rl.y) + ';width:' + px(rl.w) + ';height:' + px(rl.h) + '"' + (scene.ribbon.help ? ' tabindex="0" data-help="' + esc(scene.ribbon.help) + '"' : '') + '>' + esc(scene.ribbon.label) + '</div>');
+    }
+    scene.lanes.forEach(function (lane) {
+      var r = lane.labelRect;
+      var canCollapse = interactive && lane.collapsible;
+      out.push('<div class="sl-lane sl-lane-id-' + esc(lane.id) + (scene.orient === 'v' ? ' sl-lane-v' : '') + (lane.collapsed ? ' sl-lane-collapsed' : '') + '" style="left:' + px(r.x) + ';top:' + px(r.y) + ';width:' + px(r.w) + ';height:' + px(r.h) + '">');
+      out.push('<div class="sl-lane-head">');
+      if (canCollapse) out.push('<button type="button" class="sl-lane-toggle" data-lane="' + esc(lane.id) + '" aria-expanded="' + (lane.collapsed ? 'false' : 'true') + '" aria-label="' + (lane.collapsed ? 'Expand ' : 'Collapse ') + esc(lane.label) + '">' + (lane.collapsed ? '▸' : '▾') + '</button>');
+      out.push('<span class="sl-lane-label">' + esc(lane.label) + '</span>');
+      if (lane.help) out.push('<span class="sl-help-dot" tabindex="0" role="button" aria-label="Help: ' + esc(lane.label) + '" data-help="' + esc(lane.help) + '">i</span>');
+      out.push('</div>');
+      if (!lane.collapsed && lane.descriptor) out.push('<div class="sl-lane-desc">' + esc(lane.descriptor) + '</div>');
+      if (!lane.collapsed && lane.dimension) out.push('<div class="sl-lane-dim">' + esc(lane.dimension) + '</div>');
+      if (lane.collapsed) out.push('<div class="sl-lane-desc">' + lane.count + ' cards hidden</div>');
+      out.push('</div>');
+    });
+    if (stickyLeft) out.push('</div>');
+
+    out.push('</div>');
+    return out.join('');
+  }
+
+  /* ---------- standalone SVG export ---------- */
+
+  function renderSceneSVG(scene, opts) {
+    opts = opts || {};
+    var th = THEMES[opts.theme] || THEMES.reference;
+    var m = scene.model;
+    var W = scene.width, H = scene.height + 64;
+    var o = [];
+    var oy = 64;
+    function T(x, y, text, size, color, weight, family, anchor) {
+      return '<text x="' + x + '" y="' + y + '" font-size="' + size + '" fill="' + color + '" font-weight="' + (weight || 400) + '" font-family="' + esc(family || th.font) + '"' + (anchor ? ' text-anchor="' + anchor + '"' : '') + '>' + esc(text) + '</text>';
+    }
+    o.push('<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">');
+    o.push('<rect width="100%" height="100%" fill="#FFFFFF"/>');
+    o.push(T(16, 30, m.meta.title || 'Swimlane process map', 22, th.ink, 600));
+    if (m.meta.subtitle) o.push(T(16, 52, truncate(m.meta.subtitle, 13, W - 32), 13, th.muted, 400));
+    o.push('<g transform="translate(0,' + oy + ')">');
+    o.push('<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="' + th.edge + '"/></marker>' +
+      '<marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="' + th.primary + '"/></marker>' +
+      '<marker id="al" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="' + th.secondary + '"/></marker></defs>');
+    scene.lanes.forEach(function (lane, i) {
+      var r = lane.band;
+      o.push('<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '" fill="' + (i % 2 ? th.laneB : th.laneA) + '" stroke="' + th.rule + '" stroke-width="1"/>');
+    });
+    scene.guides.forEach(function (gd) {
+      o.push('<line x1="' + gd.x1 + '" y1="' + gd.y1 + '" x2="' + gd.x2 + '" y2="' + gd.y2 + '" stroke="' + th.rule + '" stroke-dasharray="3 5"/>');
+    });
+    scene.edges.forEach(function (e) {
+      var color = e.kind === 'data' ? th.primary : e.kind === 'loop' ? th.secondary : th.edge;
+      var dash = e.kind === 'loop' ? ' stroke-dasharray="6 4"' : e.kind === 'optional' ? ' stroke-dasharray="2 4"' : '';
+      var mk = e.kind === 'data' ? 'ad' : e.kind === 'loop' ? 'al' : 'a';
+      o.push('<path d="' + pathD(e.points) + '" fill="none" stroke="' + color + '" stroke-width="' + (e.kind === 'handoff' ? 2.25 : 1.5) + '"' + dash + ' marker-end="url(#' + mk + ')"/>');
+    });
+    scene.lanes.forEach(function (lane) {
+      var r = lane.labelRect;
+      o.push('<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '" fill="' + th.laneLabel + '" stroke="' + th.rule + '"/>');
+      o.push(T(r.x + 12, r.y + 22, truncate(lane.label, 13, r.w - 24, false, true), 13, th.ink, 600));
+      if (lane.descriptor && !lane.collapsed) o.push(T(r.x + 12, r.y + 40, truncate(lane.descriptor, 12, r.w - 24), 12, th.muted, 400));
+    });
+    scene.stages.forEach(function (s, i) {
+      if (!s.headerRect) return;
+      var r = s.headerRect;
+      o.push('<circle cx="' + (r.x + 22) + '" cy="' + (r.y + 22) + '" r="11" fill="' + th.primary + '"/>');
+      o.push(T(r.x + 22, r.y + 26, String(i + 1), 11, '#FFFFFF', 600, null, 'middle'));
+      o.push(T(r.x + 40, r.y + 26, truncate(s.label, 13, r.w - 52, false, true), 13, th.ink, 600));
+      if (s.descriptor) o.push(T(r.x + 40, r.y + 44, truncate(s.descriptor, 12, r.w - 52), 12, th.muted, 400));
+    });
+    if (scene.ribbon) {
+      scene.ribbon.segs.forEach(function (sg) {
+        var r = sg.rect;
+        o.push('<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '" rx="12" fill="' + (sg.tone === 'secondary' ? th.secondaryTint : th.primaryTint) + '" stroke="' + (sg.tone === 'secondary' ? th.secondaryBorder : th.primary) + '"/>');
+        o.push(T(r.x + r.w / 2, r.y + r.h / 2 + 4, truncate(sg.label, 12, r.w - 12), 12, sg.tone === 'secondary' ? th.secondaryInk : th.primary, 500, null, 'middle'));
+      });
+    }
+    scene.cards.forEach(function (c) {
+      var r = c.rect, v = c.variant;
+      var fill = '#FFFFFF', stroke = th.ruleStrong, sw = 1, dash = '', tc = th.ink, sc = th.muted;
+      if (v === 'key') { stroke = th.primary; sw = 1.5; }
+      if (v === 'core') { fill = th.primary; stroke = th.primary; tc = th.onPrimary; sc = th.primarySub; }
+      if (v === 'system') { fill = th.systemBg; stroke = th.systemBorder; dash = ' stroke-dasharray="4 3"'; }
+      if (v === 'external') { fill = th.secondaryTint; stroke = th.secondaryBorder; tc = th.secondaryInk; sc = th.secondary; }
+      if (v === 'decision') { stroke = th.secondary; sw = 1.5; }
+      if (v === 'note') { fill = th.noteBg; dash = ' stroke-dasharray="1 3"'; }
+      o.push('<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '" rx="6" fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + sw + '"' + dash + '/>');
+      var lines = wrapLines(c.title, 13, r.w - 2 * K.padX, false, true);
+      var y = r.y + K.padY + 13;
+      for (var li = 0; li < scene.titleLines && li < lines.length; li++) {
+        var txt = li === scene.titleLines - 1 && lines.length > scene.titleLines ? truncate(lines.slice(li).join(' '), 13, r.w - 2 * K.padX, false, true) : lines[li];
+        o.push(T(r.x + K.padX, y, txt, 13, tc, 600));
+        y += K.titleLH;
+      }
+      y = r.y + K.padY + scene.titleLines * K.titleLH;
+      if (scene.hasSub && c.subtitle) o.push(T(r.x + K.padX, y + 13, truncate(c.subtitle, 12, r.w - 2 * K.padX, true), 12, sc, 400, th.mono));
+    });
+    scene.pills.forEach(function (p) {
+      var r = p.rect;
+      o.push('<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '" rx="12" fill="' + th.primaryTint + '" stroke="' + th.primary + '"/>');
+      o.push(T(r.x + r.w / 2, r.y + r.h / 2 + 4, p.count + ' cards', 12, th.primary, 500, null, 'middle'));
+    });
+    scene.edges.forEach(function (e) {
+      var s = e.labelSpot;
+      if (s && s.mode === 'dot') {
+        o.push('<circle cx="' + s.x + '" cy="' + s.y + '" r="8" fill="#FFFFFF" stroke="' + th.primary + '"/>');
+        o.push(T(s.x, s.y + 4, String(s.note), 10, th.primary, 600, null, 'middle'));
+        return;
+      }
+      if (!s || s.mode !== 'inline') return;
+      var t = truncate((e.branch ? e.branch + ' · ' : '') + e.label, 12, s.maxW - 8);
+      var w = textWidth(t, 12) + 10;
+      var bx = s.align === 'left' ? s.x : s.align === 'right' ? s.x - w : s.x - w / 2;
+      o.push('<rect x="' + bx + '" y="' + (s.y - 9) + '" width="' + w + '" height="18" rx="3" fill="#FFFFFF" stroke="' + th.rule + '"/>');
+      o.push(T(bx + w / 2, s.y + 4, t, 12, th.ink2, 400, null, 'middle'));
+    });
+    o.push('</g></svg>');
+    return o.join('');
+  }
+
+  /* ---------- document assembly (shared by build.js and the page itself) ---------- */
+
+  var FONTS = {
+    reference: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap',
+    cloudmuscle: 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800&family=IBM+Plex+Mono:wght@400&family=Inter:wght@400;500;600&display=swap'
+  };
+  function capabilitiesFor(spec) {
+    var ix = (spec && spec.interactions) || {};
+    var caps = {};
+    if (ix.exports !== false) caps.downloads = true;
+    if (ix.comments !== false) caps.comments = { composer_only: true };
+    var shared = ix.checklistScope === 'shared' || ((spec && spec.sections) || []).some(function (s) { return s.type === 'checklist' && s.scope === 'shared'; });
+    if (shared) { caps.db = {}; caps.user = { scopes: ['profile'] }; }
+    if (ix.ask) caps.sample = {};
+    if (ix.quickEdit) caps.artifact = {};
+    return caps;
+  }
+  function assembleDocument(p) {
+    var spec = p.spec || {};
+    var meta = spec.meta || {};
+    var theme = THEMES[meta.theme] ? meta.theme : 'reference';
+    function a(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+    var json = JSON.stringify(spec).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+    return '<!doctype html>\n<html lang="' + a(meta.language || 'en') + '" data-theme="light" data-sl-theme="' + theme + '">\n<head>\n' +
+      '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n' +
+      '<title>' + a(meta.title || 'Swimlane process map') + '</title>\n' +
+      '<link rel="stylesheet" id="sl-fonts" href="' + a(meta.fontsHref || FONTS[theme]) + '">\n' +
+      '<style id="sl-css">\n' + p.css + '\n</style>\n</head>\n<body>\n' +
+      '<div id="app"><noscript>This swimlane map needs JavaScript to draw.</noscript></div>\n' +
+      '<script type="application/json" id="sl-spec">' + json + '</' + 'script>\n' +
+      '<script id="sl-engine">\n' + p.engine + '\n</' + 'script>\n' +
+      '<script id="sl-runtime">\n' + p.runtime + '\n</' + 'script>\n' +
+      '<script id="sl-caps">\n' + (p.caps || '') + '\n</' + 'script>\n</body>\n</html>\n';
+  }
+
+  function viewSpecs(spec) {
+    var base = Object.assign({}, spec);
+    var list = [base];
+    (spec.views || []).forEach(function (v) {
+      var vs = JSON.parse(JSON.stringify(v));
+      vs.meta = Object.assign({}, spec.meta || {}, v.meta || {});
+      vs.branches = v.branches || spec.branches || [];
+      vs.sources = spec.sources || [];
+      vs.notes = spec.notes || {};
+      vs.interactions = Object.assign({}, spec.interactions || {}, v.interactions || {});
+      vs.isView = true;
+      list.push(vs);
+    });
+    return list;
+  }
+
+  return {
+    viewSpecs: viewSpecs,
+    assembleDocument: assembleDocument, capabilitiesFor: capabilitiesFor, FONTS: FONTS,
+    VERSION: VERSION, DETAIL: DETAIL, K: K, VARIANTS: VARIANTS, EDGE_KINDS: EDGE_KINDS, LAYOUTS: LAYOUTS,
+    FORMATS: FORMATS, THEMES: THEMES,
+    normalize: normalize, computeLayout: computeLayout, planPages: planPages,
+    renderSceneHTML: renderSceneHTML, renderSceneSVG: renderSceneSVG,
+    textWidth: textWidth, wrapLines: wrapLines, lineCount: lineCount, truncate: truncate, esc: esc
+  };
+});
+
+</script>
+<script id="sl-runtime">
+/*
+ * Create Swimlane Process Maps: browser runtime.
+ * Builds the page from the embedded spec using SwimlaneEngine, then wires interactions.
+ * Rules: interactions change classes, panels and tooltips, never card coordinates.
+ * The only re-layout happens when the reader collapses or expands a lane.
+ */
+(function () {
+  'use strict';
+  var E = window.SwimlaneEngine;
+  var SL = window.SwimlaneRuntime = window.SwimlaneRuntime || {};
+  var esc = E.esc;
+  function markNE(s) { return esc(s).replace(/\(new\)/g, '<em class="sl-new">(new)</em>').replace(/\(exist\.\)/g, '<em class="sl-exist">(exist.)</em>'); }
+  var specEl = document.getElementById('sl-spec');
+  var spec = JSON.parse(specEl.textContent);
+  var meta = spec.meta || {};
+  var model = E.normalize(spec);
+  var TOKENS = { primary: '--primary', primaryTint: '--primary-tint', primarySub: '--primary-sub', secondary: '--secondary', secondaryTint: '--secondary-tint',
+    secondaryBorder: '--secondary-border', secondaryInk: '--secondary-ink', ink: '--ink', muted: '--muted', edge: '--edge', font: '--font', fontHead: '--font-head' };
+  Object.keys(meta.themeOverrides || {}).forEach(function (k) { if (TOKENS[k]) document.documentElement.style.setProperty(TOKENS[k], String(meta.themeOverrides[k])); });
+  var ix = Object.assign({
+    detailPanel: true, tooltips: true, collapsibleLanes: false, branchToggle: 'auto',
+    pathFilters: [], search: 'auto', showAll: true, zoom: true, checklistScope: 'viewer', print: true
+  }, spec.interactions || {});
+
+  var VARIANT_LABEL = {
+    standard: 'Step or record', key: 'Key record or step', core: 'Core chain', system: 'System generated or automated',
+    external: 'External or finance system', decision: 'Decision or check', note: 'Note'
+  };
+  var KIND_LABEL = { flow: 'Flow', data: 'Data or attribute transit', handoff: 'Handoff between teams', loop: 'Loop back or rework', optional: 'Optional path' };
+
+  // ---------- hooks for caps.js (artifact capabilities) ----------
+  var listeners = {};
+  function on(n, f) { (listeners[n] = listeners[n] || []).push(f); }
+  function emit(n, d) { (listeners[n] || []).forEach(function (f) { try { f(d); } catch (e) { if (window.console) console.error(e); } }); }
+
+  // ---------- state ----------
+  var state = {
+    collapsed: {}, selected: null, branchFocus: null, path: null, query: '', checks: {},
+    fit: null, hiddenSections: {}, collapsedSections: {}
+  };
+  var viewSpecs = E.viewSpecs(spec).map(function (v) { return JSON.parse(JSON.stringify(v)); });
+  var viewTitles = viewSpecs.map(function (v, i) { return i === 0 ? (meta.viewTitle || 'Process map') : (v.title || ('View ' + (i + 1))); });
+  var collapsedDefaults = viewSpecs.map(function (vs) {
+    var c = {}, vix = vs.interactions || ix;
+    (vs.lanes || []).forEach(function (l) {
+      if (vix.collapsibleLanes && l.collapsible !== false) l.collapsible = true;
+      if (l.collapsible && l.collapsedByDefault) c[l.id] = true;
+    });
+    return c;
+  });
+  var layoutSpec = viewSpecs[0];
+  state.view = 0;
+  state.collapsed = Object.assign({}, collapsedDefaults[0]);
+  var allModels = viewSpecs.map(function (v) { return E.normalize(v); });
+  model = allModels[0];
+  (spec.sections || []).forEach(function (s, i) {
+    var id = s.id || ('s' + i);
+    if (s.collapsedByDefault) state.collapsedSections[id] = true;
+    if (s.hiddenByDefault) state.hiddenSections[id] = true;
+  });
+
+  var storeKey = 'csm:' + (meta.id || hash(meta.title || 'swimlane')) + ':checks';
+  function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return String(h >>> 0); }
+  try { var saved = localStorage.getItem(storeKey); if (saved) state.checks = JSON.parse(saved) || {}; } catch (e) { state.checks = {}; }
+  function saveChecks() { try { localStorage.setItem(storeKey, JSON.stringify(state.checks)); } catch (e) { /* storage unavailable: ticks last for this visit only */ } }
+
+  var sourcesById = {};
+  (spec.sources || []).forEach(function (s) { sourcesById[String(s.id)] = s; });
+  function supLinks(ids) {
+    if (!ids || !ids.length) return '';
+    return ids.map(function (id) {
+      var s = sourcesById[String(id)];
+      if (!s) return '';
+      return '<sup class="sl-sup">' + (s.url ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">[' + esc(id) + ']</a>' : '[' + esc(id) + ']') + '</sup>';
+    }).join('');
+  }
+
+  // ---------- page skeleton ----------
+  var format = meta.format || 'canvas';
+  var paged = format !== 'canvas' && (E.FORMATS[format] || (format && format.width));
+  var root = document.getElementById('app');
+  var tip = document.createElement('div'); tip.className = 'sl-tip'; tip.hidden = true; tip.setAttribute('role', 'tooltip');
+  var panel = document.createElement('aside'); panel.className = 'sl-panel'; panel.hidden = true; panel.setAttribute('aria-label', 'Card details');
+  document.body.appendChild(tip); document.body.appendChild(panel);
+
+  function legendHTML() {
+    var used = {}, kinds = {}, q = false, check = false, ribbon = false, eq = false;
+    var allCards = [], allEdges = [];
+    allModels.forEach(function (mm) { allCards = allCards.concat(mm.cards); allEdges = allEdges.concat(mm.edges); });
+    viewSpecs.forEach(function (vs) { if (vs.stateTrack) ribbon = true; });
+    allCards.forEach(function (c) {
+      used[c.variant] = true;
+      if (c.evidence === 'unconfirmed' || c.evidence === 'assumed') q = true;
+      if (c.checklist) check = true;
+    });
+    allEdges.forEach(function (e) { kinds[e.kind] = true; if (e.evidence && e.evidence !== 'confirmed') eq = true; });
+    if (eq) q = true;
+    var labels = Object.assign({}, VARIANT_LABEL, (spec.legend && spec.legend.labels) || {});
+    var kLabels = Object.assign({}, KIND_LABEL, (spec.legend && spec.legend.edgeLabels) || {});
+    var out = [];
+    E.VARIANTS.forEach(function (v) { if (used[v]) out.push('<span class="sl-legend-item"><span class="sl-sw v-' + v + '"></span>' + esc(labels[v]) + '</span>'); });
+    E.EDGE_KINDS.forEach(function (k) { if (kinds[k]) out.push('<span class="sl-legend-item"><span class="sl-sw-line k-' + k + '"></span>' + esc(kLabels[k]) + '</span>'); });
+    if (model.branches.length) out.push('<span class="sl-legend-item"><span class="sl-badge sl-badge-branch">A</span>Branch, only one applies</span>');
+    if (q) out.push('<span class="sl-legend-item"><span class="sl-badge sl-badge-q">?</span>Not confirmed, verify in org</span>');
+    if (ribbon) out.push('<span class="sl-legend-item"><span class="sl-sw sl-sw-ribbon"></span>Record state over the stages</span>');
+    if (check) out.push('<span class="sl-legend-item"><input type="checkbox" disabled checked aria-hidden="true">Tick when done (saved in your browser)</span>');
+    ((spec.legend && spec.legend.extra) || []).forEach(function (x) { out.push('<span class="sl-legend-item">' + (x.cls ? '<span class="sl-sw ' + esc(x.cls) + '"></span>' : '') + markNE(x.label || x) + '</span>'); });
+    return '<div class="sl-legend" aria-label="Legend">' + out.join('') + '</div>';
+  }
+
+  function mastHTML(compact) {
+    return '<header class="sl-mast"' + (compact ? ' style="border-bottom-width:2px;padding-bottom:10px"' : '') + '><div class="sl-mast-text">' +
+      (meta.overline ? '<span class="sl-overline">' + esc(meta.overline) + '</span>' : '') +
+      '<h1 class="sl-title"' + (compact ? ' style="font-size:24px;line-height:30px"' : '') + '>' + esc(meta.title || 'Swimlane process map') + '</h1>' +
+      (meta.subtitle ? '<p class="sl-subtitle">' + esc(meta.subtitle) + '</p>' : '') +
+      (meta.author || meta.date || meta.version ? '<span class="sl-meta">' + esc([meta.author, meta.date, meta.version ? 'v' + meta.version : ''].filter(Boolean).join(' · ')) + '</span>' : '') +
+      '</div>' + legendHTML() + '</header>';
+  }
+
+  // ---------- sections ----------
+  function sectionBody(s) {
+    var t = s.type || 'list';
+    var intro = s.intro ? '<p class="sl-sec-intro">' + esc(s.intro) + '</p>' : '';
+    if (t === 'ledger') {
+      return intro + '<div class="sl-ledger">' + (s.steps || []).map(function (st, i) {
+        return '<div class="sl-ledger-step"><span class="sl-ledger-num' + (st.alt ? ' sl-alt' : '') + '">' + esc(st.n || (i + 1)) + '</span><div>' +
+          '<div class="sl-ledger-title">' + esc(st.title || '') + supLinks(st.sources) + (st.stage ? ' <button type="button" class="sl-link" data-tour-stage="' + esc(st.stage) + '">Show on map</button>' : '') + '</div>' +
+          (st.records ? '<div class="sl-ledger-records">' + esc(st.records) + '</div>' : '') +
+          (st.rows || []).map(rowHTML).join('') + (st.note ? '<div class="sl-ledger-records">' + esc(st.note) + '</div>' : '') + '</div></div>';
+      }).join('') + '</div>';
+    }
+    if (t === 'highlights') {
+      return intro + '<div class="sl-highlights">' + (s.items || []).map(function (it) {
+        return '<div class="sl-hl t-' + esc(it.tone || 'primary') + '"><b>' + esc(it.title || '') + '</b>' + (it.text ? '<span>' + esc(it.text) + supLinks(it.sources) + '</span>' : '') + '</div>';
+      }).join('') + '</div>';
+    }
+    if (t === 'compare') {
+      return intro + '<div class="sl-compare">' + (s.columns || []).map(function (col) {
+        return '<div class="sl-cmp-col' + (col.tone ? ' t-' + esc(col.tone) : '') + '"><div class="sl-cmp-head">' + (col.branch ? '<span class="sl-badge sl-badge-branch">' + esc(col.branch) + '</span>' : '') + esc(col.title || '') + '</div>' +
+          '<dl class="sl-dl">' + (col.rows || []).map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + supLinks(r[2]) + '</dd>'; }).join('') + '</dl>' +
+          (col.note ? '<div class="sl-cmp-note">' + esc(col.note) + '</div>' : '') +
+          (col.branch ? '<button type="button" class="sl-btn sl-btn-sm" data-focus-branch="' + esc(col.branch) + '">Show on map</button>' : '') + '</div>';
+      }).join('') + '</div>' + (s.footnote ? '<div class="sl-callout t-warning" style="margin-top:10px">' + esc(s.footnote) + supLinks(s.sources) + '</div>' : '');
+    }
+    if (t === 'faq') {
+      return intro + (s.items || []).map(function (it) {
+        return '<details class="sl-faq"><summary>' + esc(it.q || '') + '</summary><div>' +
+          (it.cause ? '<p><b>Cause:</b> ' + esc(it.cause) + '</p>' : '') + (it.fix ? '<p><b>Fix:</b> ' + esc(it.fix) + supLinks(it.sources) + '</p>' : '') +
+          (it.a ? '<p>' + esc(it.a) + (it.fix ? '' : supLinks(it.sources)) + '</p>' : '') + '</div></details>';
+      }).join('');
+    }
+    if (t === 'table') {
+      return intro + '<div class="sl-table-wrap"><table class="sl-table"><thead><tr>' + (s.columns || []).map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') +
+        '</tr></thead><tbody>' + (s.rows || []).map(function (r) { return '<tr>' + r.map(function (c, i) { return (i === 0 && s.rowHeaders ? '<th>' : '<td>') + markNE(c) + (i === 0 && s.rowHeaders ? '</th>' : '</td>'); }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+    }
+    if (t === 'callout') return '<div class="sl-callout t-' + esc(s.tone || 'info') + '">' + esc(s.text || '') + supLinks(s.sources) + '</div>';
+    if (t === 'checklist') {
+      var sid = s.id || 'checklist';
+      return intro + (s.items || []).map(function (it, i) {
+        var id = 'sec:' + sid + ':' + (it.id || i);
+        var text = typeof it === 'string' ? it : it.text;
+        var on = !!state.checks[id];
+        return '<label class="sl-check-item' + (on ? ' sl-done' : '') + '"><input type="checkbox" data-check="' + esc(id) + '"' + (on ? ' checked' : '') + '><span>' + esc(text) + '</span><span class="sl-check-by" data-check-by="' + esc(id) + '"></span></label>';
+      }).join('') + '<div class="sl-scope-note"' + (s.scope === 'shared' ? ' data-scope-note="shared">' + (SL.sharedStore ? 'Ticks are shared with everyone who opens this map.' : 'Team ticks appear when this map is opened in Claude; until then ticks stay in your browser.') : '>Ticks are saved in your browser only.') + '</div>';
+    }
+    if (t === 'glossary') return intro + '<dl class="sl-glossary">' + (s.items || []).map(function (it) { return '<dt>' + esc(it.term) + '</dt><dd>' + esc(it.definition) + '</dd>'; }).join('') + '</dl>';
+    if (t === 'text') return intro + (s.paragraphs || []).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
+    var tag = s.ordered ? 'ol' : 'ul';
+    return intro + '<' + tag + ' class="sl-list' + (s.marker ? ' m-' + esc(s.marker) : '') + '">' + (s.items || []).map(function (it) {
+      if (typeof it === 'string') return '<li>' + esc(it) + '</li>';
+      return '<li>' + (it.lead ? '<span class="sl-lead">' + esc(it.lead) + '</span> ' : '') + esc(it.text || '') + supLinks(it.sources) + '</li>';
+    }).join('') + '</' + tag + '>';
+  }
+
+  function rowHTML(r) {
+    var o = Array.isArray(r) ? { from: r[0], to: r[1], how: r[2], branch: r[3] } : r;
+    if (o.branch && state.branchFocus && o.branch !== state.branchFocus) return '';
+    return '<div class="sl-ledger-row"><span>' + (o.branch ? '<b class="sl-elabel-branch">' + esc(o.branch) + '</b>' : '') + esc(o.from) + '</span><span aria-hidden="true">→</span><span class="sl-to">' + esc(o.to) + '</span><span class="sl-how">' + esc(o.how || '') + '</span></div>';
+  }
+  function sectionHTML(s, i) {
+    var id = s.id || ('s' + i);
+    var span = s.span === 'full' ? ' sl-span-full' : '';
+    if (state.hiddenSections[id]) {
+      return '<div class="sl-section' + span + '" data-section="' + esc(id) + '"><div class="sl-placeholder"><span>' + esc(s.title || 'Section') + ' hidden</span><button type="button" class="sl-btn" data-sec-show="' + esc(id) + '">Show</button></div></div>';
+    }
+    var collapsible = s.collapsible !== false, hideable = s.hideable !== false;
+    var col = !!state.collapsedSections[id];
+    return '<section class="sl-section' + span + '" id="sec-' + esc(id) + '" data-section="' + esc(id) + '"><div class="sl-sec-head"><h2 class="sl-sec-title">' + esc(s.title || '') + '</h2>' +
+      (s.help ? '<span class="sl-help-dot" tabindex="0" role="button" aria-label="Help" data-help="' + esc(s.help) + '">i</span>' : '') +
+      (collapsible ? '<button type="button" class="sl-sec-btn" data-sec-toggle="' + esc(id) + '" aria-expanded="' + (!col) + '">' + (col ? 'Expand' : 'Collapse') + '</button>' : '') +
+      (hideable ? '<button type="button" class="sl-sec-btn" data-sec-hide="' + esc(id) + '" aria-label="Hide section">Hide</button>' : '') +
+      '</div>' + (col ? '' : '<div class="sl-sec-body">' + sectionBody(s) + '</div>') + '</section>';
+  }
+
+  function footHTML() {
+    var n = spec.notes || {};
+    var parts = [];
+    if ((n.unconfirmed || []).length || (n.assumptions || []).length) {
+      parts.push('<div><h3>Not confirmed</h3><ul>' + (n.unconfirmed || []).concat(n.assumptions || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>');
+    }
+    if ((n.confirmed || []).length) parts.push('<div><h3>Confirmed</h3><ul>' + n.confirmed.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>');
+    if ((spec.sources || []).length) {
+      parts.push('<div><h3>Sources</h3><ol>' + spec.sources.map(function (s) {
+        return '<li value="' + esc(s.id) + '">' + (s.url ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.title || s.url) + '</a>' : esc(s.title || '')) + (s.version ? ' · ' + esc(s.version) : '') + '</li>';
+      }).join('') + '</ol></div>');
+    }
+    var noted = (scene && scene.edges || []).filter(function (e) { return e.labelSpot && e.labelSpot.mode === 'dot'; });
+    if (noted.length) {
+      parts.push('<div><h3>Connector notes</h3><ol>' + noted.map(function (e) {
+        var a = model.cardMap[e.from], b = model.cardMap[e.to];
+        return '<li value="' + e.labelSpot.note + '">' + esc((a ? a.title : e.from) + ' → ' + (b ? b.title : e.to)) + ': ' + esc((e.branch ? 'branch ' + e.branch + ', ' : '') + e.label) + '</li>';
+      }).join('') + '</ol></div>');
+    }
+    if (meta.footer) parts.push('<div>' + esc(meta.footer) + '</div>');
+    return '<footer class="sl-foot">' + parts.join('') + '</footer><div class="sl-credit">Made with Create Swimlane Process Maps · engine ' + esc(E.VERSION) + '</div>';
+  }
+
+  // ---------- visual state (classes only, never coordinates) ----------
+  var scene = null;
+  function visualState() {
+    var st = { selected: state.selected, dimCards: {}, dimEdges: {}, hotEdges: {}, linked: {}, checks: state.checks };
+    var keep = null;
+    if (state.path) {
+      var pf = viewFilters().filter(function (p) { return p.id === state.path; })[0];
+      if (pf) { keep = {}; (pf.cards || []).forEach(function (id) { keep[id] = true; }); }
+    }
+    model.cards.forEach(function (c) {
+      if (state.branchFocus && c.branch && c.branch !== state.branchFocus) st.dimCards[c.id] = true;
+      if (keep && !keep[c.id]) st.dimCards[c.id] = true;
+      if (state.tourCards && !state.tourCards[c.id]) st.dimCards[c.id] = true;
+    });
+    model.edges.forEach(function (e) {
+      if (st.dimCards[e.from] || st.dimCards[e.to]) st.dimEdges[e.id] = true;
+      if (state.branchFocus && e.branch && e.branch !== state.branchFocus) st.dimEdges[e.id] = true;
+      if (state.tourCards && state.tourCards[e.from] && state.tourCards[e.to]) st.hotEdges[e.id] = true;
+      if (state.selected && (e.from === state.selected || e.to === state.selected)) {
+        st.hotEdges[e.id] = true;
+        st.linked[e.from === state.selected ? e.to : e.from] = true;
+      }
+    });
+    return st;
+  }
+  function applyClasses(container) {
+    var st = visualState();
+    var q = state.query.trim().toLowerCase();
+    container.querySelectorAll('[data-card]').forEach(function (el) {
+      var id = el.getAttribute('data-card');
+      var c = model.cardMap[id];
+      el.classList.toggle('sl-selected', st.selected === id);
+      el.classList.toggle('sl-dim', !!st.dimCards[id]);
+      el.classList.toggle('sl-linked', !!st.linked[id]);
+      var hit = q && c && (c.title + ' ' + c.subtitle + ' ' + (c.tags || []).join(' ') + ' ' + (c.description || '')).toLowerCase().indexOf(q) >= 0;
+      el.classList.toggle('sl-match', !!hit);
+    });
+    container.querySelectorAll('g[data-edge]').forEach(function (g) {
+      var id = g.getAttribute('data-edge');
+      var e = scene.edges.filter(function (x) { return x.id === id; })[0];
+      g.classList.toggle('sl-dim', !!st.dimEdges[id]);
+      g.classList.toggle('sl-hot', !!st.hotEdges[id]);
+      var line = g.querySelector('.sl-edge-line');
+      if (line && e) line.setAttribute('marker-end', 'url(#sl-arr-' + (st.hotEdges[id] ? 'hot' : e.kind) + ')');
+    });
+    container.querySelectorAll('.sl-elabel[data-edge]').forEach(function (el) {
+      var id = el.getAttribute('data-edge');
+      el.classList.toggle('sl-dim', !!st.dimEdges[id]);
+      el.classList.toggle('sl-hot', !!st.hotEdges[id]);
+    });
+  }
+
+  // ---------- canvas mode ----------
+  var scrollEl, sizerEl, zoomEl, sectionsEl, topEl;
+  function buildCanvas() {
+    scene = E.computeLayout(layoutSpec, { collapsed: state.collapsed });
+    if (!scene) return;
+    var sheetW = Math.max(1100, scene.width + 66);
+    viewSpecs.forEach(function (vs) { sheetW = Math.max(sheetW, E.computeLayout(vs, {}).width + 66); });
+    root.innerHTML = '<div class="sl-sheet" style="--sheet-w:' + sheetW + 'px">' + mastHTML(false) + toolbarHTML() + '<div class="sl-sections sl-sections-top"></div>' +
+      '<h2 class="sl-sr">Swimlane diagram</h2><div class="sl-view-title"></div><div class="sl-scroll" tabindex="0" aria-label="Swimlane diagram, scroll sideways for more"><div class="sl-sizer" style="position:relative"><div class="sl-zoom"></div></div></div>' +
+      '<div class="sl-sections"></div>' + footHTML() + '</div>';
+    scrollEl = root.querySelector('.sl-scroll');
+    sizerEl = root.querySelector('.sl-sizer');
+    zoomEl = root.querySelector('.sl-zoom');
+    sectionsEl = root.querySelector('.sl-sections:not(.sl-sections-top)');
+    topEl = root.querySelector('.sl-sections-top');
+    renderViewTools();
+    renderDiagram();
+    renderSections();
+    if (state.fit == null) state.fit = scene.width > scrollEl.clientWidth && scrollEl.clientWidth / scene.width >= 0.6;
+    applyZoom();
+    syncToolbar();
+    function syncPad() { var tb = root.querySelector('.sl-toolbar'); if (tb) document.documentElement.style.scrollPaddingTop = (tb.offsetHeight + 20) + 'px'; }
+    syncPad();
+    if (window.ResizeObserver) { new ResizeObserver(function () { applyZoom(); }).observe(scrollEl); new ResizeObserver(syncPad).observe(root.querySelector('.sl-toolbar')); }
+  }
+  function renderDiagram() {
+    scene = E.computeLayout(layoutSpec, { collapsed: state.collapsed });
+    zoomEl.innerHTML = E.renderSceneHTML(scene, visualState(), {});
+    var vt = root.querySelector('.sl-view-title');
+    if (vt) vt.textContent = viewSpecs.length > 1 ? viewTitles[state.view] + (layoutSpec.subtitle ? ': ' + layoutSpec.subtitle : '') : '';
+    if (state.tourStage != null) markStage(state.tourStage);
+    zoomEl.style.width = scene.width + 'px';
+    zoomEl.style.height = scene.height + 'px';
+    applyClasses(zoomEl);
+    applyZoom();
+  }
+  function applyZoom() {
+    if (!scene || !scrollEl) return;
+    var avail = scrollEl.clientWidth;
+    var s = state.fit ? Math.min(1, avail / scene.width) : 1;
+    zoomEl.style.position = 'absolute'; zoomEl.style.left = '0'; zoomEl.style.top = '0';
+    zoomEl.style.transform = s < 1 ? 'scale(' + s + ')' : 'none';
+    sizerEl.style.width = Math.ceil(scene.width * s) + 'px';
+    sizerEl.style.height = Math.ceil(scene.height * s) + 'px';
+    var b = root.querySelector('[data-act="fit"]');
+    if (b) { b.setAttribute('aria-pressed', state.fit ? 'true' : 'false'); b.textContent = state.fit ? 'Fit to width' : 'Actual size'; }
+  }
+  function renderSections() {
+    if (!sectionsEl) return;
+    var secs = spec.sections || [];
+    var top = [], rest = [];
+    secs.forEach(function (s, i) { (s.placement === 'top' ? top : rest).push(sectionHTML(s, i)); });
+    sectionsEl.innerHTML = rest.join('');
+    sectionsEl.style.display = rest.length ? '' : 'none';
+    if (topEl) { topEl.innerHTML = top.join(''); topEl.style.display = top.length ? '' : 'none'; }
+    emit('sections', sectionsEl);
+  }
+
+  function viewFilters() {
+    return (ix.pathFilters || []).filter(function (p) { return (p.view == null ? 0 : p.view) === state.view; });
+  }
+  function renderViewTools() {
+    var host = root.querySelector('.sl-tb-view');
+    if (!host) return;
+    var parts = [];
+    if ((layoutSpec.lanes || []).some(function (l) { return l.collapsible; })) parts.push('<span class="sl-sep"></span><span class="sl-tb-group"><span class="sl-tb-label">Lanes</span><button type="button" class="sl-btn" data-act="collapse-all">Collapse all</button><button type="button" class="sl-btn" data-act="expand-all">Expand all</button></span>');
+    if (model.branches.length && ix.branchToggle !== false && model.cards.some(function (c) { return c.branch; })) {
+      parts.push('<span class="sl-sep"></span><span class="sl-tb-group"><span class="sl-tb-label">Branch</span><button type="button" class="sl-btn" data-branch="" aria-pressed="true">All</button>' +
+        model.branches.map(function (b) { return '<button type="button" class="sl-btn" data-branch="' + esc(b.id) + '" aria-pressed="false"' + (b.help || b.label ? ' data-help="' + esc(b.label + (b.help ? ': ' + b.help : '')) + '"' : '') + '>' + esc(b.id) + (b.short ? ' · ' + esc(b.short) : '') + '</button>'; }).join('') + '</span>');
+    }
+    var vf = viewFilters();
+    if (vf.length) parts.push('<span class="sl-sep"></span><select class="sl-select" data-act="path" aria-label="Highlight a path"><option value="">Highlight a path…</option>' + vf.map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.label) + '</option>'; }).join('') + '</select>');
+    host.innerHTML = parts.join('');
+  }
+  function toolbarHTML() {
+    var parts = [];
+    if (viewSpecs.length > 1) parts.push('<span class="sl-tb-group sl-tabs" role="group" aria-label="Views">' + viewTitles.map(function (t, i) { return '<button type="button" class="sl-btn sl-tab" data-view="' + i + '" aria-pressed="' + (i === state.view) + '">' + esc(t) + '</button>'; }).join('') + '</span><span class="sl-sep"></span>');
+    if (ix.zoom) parts.push('<button type="button" class="sl-btn" data-act="fit" aria-pressed="false" data-help="Switch between fitting the whole map to the window and actual size with sideways scrolling">Fit to width</button>');
+    parts.push('<span class="sl-tb-view"></span>');
+    if (!paged && tourSteps().length && ix.walkthrough !== false) parts.push('<span class="sl-sep"></span><button type="button" class="sl-btn" data-act="tour" data-help="Step through the process one stage at a time; arrow keys move, Esc closes">Walk through</button>');
+    var jumps = jumpTargets();
+    if (!paged && jumps.length > 2) parts.push('<select class="sl-select" data-act="jump" aria-label="Jump to"><option value="">Jump to…</option>' + jumps.map(function (j) { return '<option value="' + esc(j.v) + '">' + esc(j.t) + '</option>'; }).join('') + '</select>');
+    if (ix.search === true || (ix.search === 'auto' && allModels.reduce(function (n, mm) { return n + mm.cards.length; }, 0) > 15)) parts.push('<span class="sl-sep"></span><input class="sl-search" type="search" data-act="search" placeholder="Find a card" aria-label="Find a card">');
+    if (ix.showAll) parts.push('<span class="sl-sep"></span><button type="button" class="sl-btn" data-act="show-all" data-help="Expand every lane and section and clear highlights">Show everything</button>');
+    if (ix.print) parts.push('<button type="button" class="sl-btn" data-act="print" data-help="Print or save as PDF; everything is expanded first">Print</button>');
+    parts.push('<span class="sl-tb-caps"></span>');
+    return '<nav class="sl-toolbar" aria-label="Map controls">' + parts.join('') + '</nav>';
+  }
+  function syncToolbar() {
+    root.querySelectorAll('[data-branch]').forEach(function (b) {
+      b.setAttribute('aria-pressed', (b.getAttribute('data-branch') || null) === state.branchFocus || (!state.branchFocus && !b.getAttribute('data-branch')) ? 'true' : 'false');
+    });
+  }
+
+  // ---------- detail panel ----------
+  var lastFocus = null;
+  function openPanel(id) {
+    if (!ix.detailPanel) return;
+    var c = model.cardMap[id];
+    if (!c) return;
+    var lane = model.lanes[model.laneIdx[c.lane]] || {};
+    var stage = model.stages[model.stageIdx[c.stage]] || {};
+    var inc = model.edges.filter(function (e) { return e.to === id; });
+    var outE = model.edges.filter(function (e) { return e.from === id; });
+    function edgeLine(e, other) {
+      var oc = model.cardMap[other];
+      return '<li><b>' + esc(oc ? oc.title : other) + '</b>' + (e.label ? ': ' + esc(e.label) : '') + (e.relation ? ' <span class="sl-chip">' + esc(e.relation) + '</span>' : '') +
+        (e.evidence && e.evidence !== 'confirmed' ? ' <span class="sl-badge sl-badge-q">?</span>' : '') + (e.branch ? ' <span class="sl-badge sl-badge-branch">' + esc(e.branch) + '</span>' : '') + '</li>';
+    }
+    var h = [];
+    h.push('<button type="button" class="sl-btn sl-panel-close" data-act="close-panel" aria-label="Close details">Close</button>');
+    h.push('<div class="sl-overline">' + esc(lane.label || '') + (stage.label ? ' · ' + esc(stage.label) : '') + '</div>');
+    h.push('<h2>' + esc(c.title) + '</h2>');
+    if (c.subtitle) h.push('<div class="sl-mono">' + esc(c.subtitle) + '</div>');
+    var chips = ['<span class="sl-chip">' + esc(VARIANT_LABEL[c.variant] || c.variant) + '</span>'];
+    if (c.branch) chips.push('<span class="sl-chip">Branch ' + esc(c.branch) + '</span>');
+    if (c.evidence && c.evidence !== 'confirmed') chips.push('<span class="sl-chip">' + (c.evidence === 'assumed' ? 'Assumption' : 'Unconfirmed') + '</span>');
+    if (c.status) chips.push('<span class="sl-chip sl-chip-status">' + esc(c.status) + '</span>');
+    h.push('<div style="margin-top:8px">' + chips.join('') + '</div>');
+    if (c.description) h.push('<p>' + esc(c.description) + '</p>');
+    if (c.help) h.push('<div class="sl-callout" style="margin-top:8px">' + esc(c.help) + '</div>');
+    if ((c.details || []).length) h.push('<div class="sl-kv"><div class="sl-k">Details</div><dl class="sl-dl">' + c.details.map(function (d) { return '<dt>' + esc(d.label) + '</dt><dd>' + esc(d.value) + '</dd>'; }).join('') + '</dl></div>');
+    if ((c.fields || []).length) h.push('<div class="sl-kv"><div class="sl-k">Key fields</div>' + c.fields.map(function (f) { return '<span class="sl-chip sl-mono">' + markNE(f) + '</span>'; }).join('') + '</div>');
+    if ((c.tags || []).length) h.push('<div class="sl-kv"><div class="sl-k">Tags</div>' + c.tags.map(function (f) { return '<span class="sl-chip">' + esc(f) + '</span>'; }).join('') + '</div>');
+    if (inc.length) h.push('<div class="sl-kv"><div class="sl-k">Receives from</div><ul>' + inc.map(function (e) { return edgeLine(e, e.from); }).join('') + '</ul></div>');
+    if (outE.length) h.push('<div class="sl-kv"><div class="sl-k">Feeds into</div><ul>' + outE.map(function (e) { return edgeLine(e, e.to); }).join('') + '</ul></div>');
+    if ((c.sources || []).length) h.push('<div class="sl-kv"><div class="sl-k">Sources</div><ul>' + c.sources.map(function (sid) {
+      var s = sourcesById[String(sid)];
+      return s ? '<li>[' + esc(sid) + '] ' + (s.url ? '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.title || s.url) + '</a>' : esc(s.title)) + '</li>' : '';
+    }).join('') + '</ul></div>');
+    h.splice(4, 0, '<div class="sl-panel-actions"></div>');
+    panel.innerHTML = h.join('');
+    panel.hidden = false;
+    emit('panel', { id: id, card: c, panel: panel, actions: panel.querySelector('.sl-panel-actions'), cardEl: document.querySelector('.sl-zoom [data-card="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]') });
+    var close = panel.querySelector('[data-act="close-panel"]');
+    if (close) close.focus({ preventScroll: true });
+  }
+  function closePanel() {
+    panel.hidden = true;
+    state.selected = null;
+    refreshClasses();
+    if (lastFocus && document.contains(lastFocus)) lastFocus.focus({ preventScroll: true });
+  }
+  function refreshClasses() { document.querySelectorAll('.sl-diagram').forEach(function (d) { applyClasses(d.parentNode); }); }
+
+  // ---------- tooltips (never cover their element, never shift layout) ----------
+  var tipTimer = null, tipFor = null;
+  function showTip(el) {
+    if (!ix.tooltips) return;
+    var text = el.getAttribute('data-help');
+    if (!text) return;
+    tip.textContent = text;
+    tip.hidden = false;
+    tipFor = el;
+    var r = el.getBoundingClientRect();
+    var tw = tip.offsetWidth, thh = tip.offsetHeight;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var top = r.top - thh - 8;
+    if (top < 8) top = r.bottom + 8;
+    if (top + thh > vh - 8 && r.top - thh - 8 >= 8) top = r.top - thh - 8;
+    var left = Math.max(8, Math.min(r.left + r.width / 2 - tw / 2, vw - tw - 8));
+    tip.style.top = Math.round(top) + 'px';
+    tip.style.left = Math.round(left) + 'px';
+  }
+  function hideTip() { clearTimeout(tipTimer); tip.hidden = true; tipFor = null; }
+
+  document.addEventListener('pointerover', function (ev) {
+    if (ev.pointerType !== 'mouse') return;
+    var el = ev.target.closest && ev.target.closest('[data-help]');
+    if (!el || el === tipFor) return;
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(function () { showTip(el); }, 220);
+  });
+  document.addEventListener('pointerout', function (ev) {
+    var el = ev.target.closest && ev.target.closest('[data-help]');
+    if (el && (!ev.relatedTarget || !el.contains(ev.relatedTarget))) hideTip();
+  });
+  document.addEventListener('focusin', function (ev) {
+    var el = ev.target.closest && ev.target.closest('[data-help]');
+    var keyboard = true;
+    try { keyboard = ev.target.matches(':focus-visible'); } catch (e) { keyboard = true; }
+    if (el && keyboard) showTip(el); else hideTip();
+  });
+  window.addEventListener('scroll', hideTip, true);
+
+  // ---------- events ----------
+  document.addEventListener('click', function (ev) {
+    var t = ev.target;
+    if (!document.contains(t)) return;
+    if (t.closest('.sl-help-dot, .sl-elabel-dot, .sl-badge')) {
+      var hd = t.closest('[data-help]');
+      if (hd) { if (tipFor === hd) hideTip(); else showTip(hd); }
+      ev.stopPropagation();
+      return;
+    }
+    var act = t.closest('[data-act]');
+    if (act) {
+      var a = act.getAttribute('data-act');
+      if (a === 'fit') { state.fit = !state.fit; applyZoom(); }
+      else if (a === 'collapse-all') { (layoutSpec.lanes || []).forEach(function (l) { if (l.collapsible) state.collapsed[l.id] = true; }); renderDiagram(); }
+      else if (a === 'expand-all') { state.collapsed = {}; renderDiagram(); }
+      else if (a === 'show-all') { showEverything(); }
+      else if (a === 'print') { printNow(); }
+      else if (a === 'tour') { if (tourEl.hidden) openTour(0); else closeTour(); }
+      else if (a === 'close-panel') { closePanel(); }
+      return;
+    }
+    var vb = t.closest('[data-view]');
+    if (vb) { setView(+vb.getAttribute('data-view')); return; }
+    var fb = t.closest('[data-focus-branch]');
+    if (fb) { state.branchFocus = fb.getAttribute('data-focus-branch'); if (state.view !== 0) setView(0); syncToolbar(); refreshClasses(); renderSections(); if (scrollEl) scrollEl.scrollIntoView({ block: 'start' }); return; }
+    var ts = t.closest('[data-tour-stage]');
+    if (ts) { var sid = ts.getAttribute('data-tour-stage'), steps = tourSteps(); for (var k = 0; k < steps.length; k++) if (steps[k].stage === sid) { openTour(k); break; } return; }
+    var tn = t.closest('[data-tour]');
+    if (tn) { var a2 = tn.getAttribute('data-tour'); if (a2 === 'next') openTour(state.tourIndex + 1); else if (a2 === 'prev') openTour(state.tourIndex - 1); else closeTour(); return; }
+    var br = t.closest('[data-branch]');
+    if (br) { state.branchFocus = br.getAttribute('data-branch') || null; syncToolbar(); refreshClasses(); renderSections(); if (!tourEl.hidden) openTour(state.tourIndex); return; }
+    var lt = t.closest('.sl-lane-toggle');
+    if (lt) { var lid = lt.getAttribute('data-lane'); state.collapsed[lid] = !state.collapsed[lid]; renderDiagram(); return; }
+    var pill = t.closest('.sl-pill');
+    if (pill) { state.collapsed[pill.getAttribute('data-lane')] = false; renderDiagram(); return; }
+    var sh = t.closest('[data-sec-show]');
+    if (sh) { delete state.hiddenSections[sh.getAttribute('data-sec-show')]; renderSections(); return; }
+    var sx = t.closest('[data-sec-hide]');
+    if (sx) { state.hiddenSections[sx.getAttribute('data-sec-hide')] = true; renderSections(); return; }
+    var st = t.closest('[data-sec-toggle]');
+    if (st) { var sid = st.getAttribute('data-sec-toggle'); state.collapsedSections[sid] = !state.collapsedSections[sid]; renderSections(); return; }
+    if (t.closest('.sl-card-check')) return;
+    var card = t.closest('[data-card]');
+    if (card && !paged) {
+      var id = card.getAttribute('data-card');
+      lastFocus = card;
+      state.selected = state.selected === id ? null : id;
+      refreshClasses();
+      if (state.selected) openPanel(id); else closePanel();
+      return;
+    }
+    if (!panel.hidden && !t.closest('.sl-panel, .sl-toolbar, .sl-toast')) closePanel();
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape') { hideTip(); if (!panel.hidden) closePanel(); else if (!tourEl.hidden) closeTour(); return; }
+    if (!tourEl.hidden && !(ev.target.closest && ev.target.closest('input, textarea, select'))) {
+      if (ev.key === 'ArrowRight') { ev.preventDefault(); openTour(state.tourIndex + 1); return; }
+      if (ev.key === 'ArrowLeft') { ev.preventDefault(); openTour(state.tourIndex - 1); return; }
+    }
+    var card = ev.target.closest && ev.target.closest('[data-card]');
+    if (card && (ev.key === 'Enter' || ev.key === ' ') && !ev.target.closest('input')) { ev.preventDefault(); card.click(); }
+  });
+  document.addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (t.matches('[data-check]')) {
+      var id = t.getAttribute('data-check');
+      if (t.checked) state.checks[id] = true; else delete state.checks[id];
+      var item = t.closest('.sl-check-item');
+      if (item) item.classList.toggle('sl-done', t.checked);
+      if (isShared(id) && SL.sharedStore) SL.sharedStore.set(id, t.checked, t);
+      else saveChecks();
+    }
+    if (t.matches('[data-act="path"]')) { state.path = t.value || null; refreshClasses(); }
+    if (t.matches('[data-act="jump"]')) {
+      var v = t.value; t.value = '';
+      if (v.indexOf('view:') === 0) { setView(+v.slice(5)); if (scrollEl) scrollEl.scrollIntoView({ block: 'start' }); }
+      else if (v.indexOf('sec:') === 0) {
+        var sid2 = v.slice(4);
+        if (state.hiddenSections[sid2] || state.collapsedSections[sid2]) { delete state.hiddenSections[sid2]; delete state.collapsedSections[sid2]; renderSections(); }
+        var target = document.getElementById('sec-' + sid2);
+        if (target) target.scrollIntoView({ block: 'start' });
+      }
+    }
+  });
+  document.addEventListener('input', function (ev) {
+    if (ev.target.matches('[data-act="search"]')) { state.query = ev.target.value || ''; refreshClasses(); }
+  });
+
+  function showEverything() {
+    closeTour(true);
+    state.collapsed = {}; state.hiddenSections = {}; state.collapsedSections = {};
+    state.branchFocus = null; state.path = null; state.query = ''; state.selected = null;
+    var sel = root.querySelector('[data-act="path"]'); if (sel) sel.value = '';
+    var se = root.querySelector('[data-act="search"]'); if (se) se.value = '';
+    panel.hidden = true;
+    if (!paged) { renderDiagram(); renderSections(); }
+    syncToolbar(); refreshClasses();
+  }
+  var printStyle = document.createElement('style');
+  document.head.appendChild(printStyle);
+  function preparePrint() {
+    showEverything();
+    if (!paged) {
+      state.fit = false; applyZoom();
+      printOtherViews();
+      root.querySelectorAll('details.sl-faq').forEach(function (d) { d.open = true; });
+      var sheet = root.querySelector('.sl-sheet');
+      var w = Math.ceil(Math.max(sheet.scrollWidth, scene.width + 66));
+      var h = Math.ceil(sheet.scrollHeight + 40);
+      printStyle.textContent = '@page { size: ' + w + 'px ' + h + 'px; margin: 0 } .sl-sheet { width: ' + w + 'px; max-width: none; }';
+    }
+  }
+  function printNow() { preparePrint(); setTimeout(function () { window.print(); }, 50); }
+  window.addEventListener('beforeprint', preparePrint);
+
+  // ---------- paginated formats ----------
+  function buildPages() {
+    var dims = E.FORMATS[format] || [format.width, format.height];
+    var pw = dims[0], ph = dims[1];
+    var pages = [], pageBase = 0, m = 36, headH = 40;
+    viewSpecs.forEach(function (vsX, vIdx) {
+      layoutSpec = vsX; model = allModels[vIdx];
+    scene = E.computeLayout(layoutSpec, { collapsed: {} });
+    var items = legendHTML().split('sl-legend-item').length - 1;
+    var perRow = Math.max(1, Math.floor((pw - 2 * m) / 205));
+    var firstExtra = (meta.subtitle ? 26 : 4) + Math.ceil(items / perRow) * 22 + 10;
+    var plan = E.planPages(scene, pw, ph, { margin: m, headH: headH, firstExtra: firstExtra });
+    var s = plan.scale;
+    var diagramHTML = E.renderSceneHTML(scene, visualState(), { interactive: false });
+    var total = plan.pages.length;
+    var layered = scene.layout === 'layered';
+    var hFlow = scene.orient === 'h' && !layered;
+    function pageOf(cardId) {
+      var c = model.cardMap[cardId]; if (!c) return -1;
+      var idx = layered ? model.laneIdx[c.lane] : model.stageIdx[c.stage];
+      for (var i = 0; i < plan.pages.length; i++) if (idx >= plan.pages[i].from && idx <= plan.pages[i].to) return i;
+      return -1;
+    }
+    plan.pages.forEach(function (pg, pi) {
+      var top = m + headH + ((vIdx === 0 && pi === 0) ? firstExtra : 6);
+      var shift = pg.f0 - pg.head;
+      var viewW, viewH, inner;
+      if (hFlow) {
+        viewW = (pg.head + pg.f1 - pg.f0) * s; viewH = scene.height * s;
+        inner = '<div style="position:absolute;left:' + (-shift) + 'px;top:0;width:' + scene.width + 'px;height:' + scene.height + 'px">' + diagramHTML + '</div>' +
+          '<div style="position:absolute;left:0;top:0;width:' + scene.T0 + 'px;height:' + scene.height + 'px;overflow:hidden">' + diagramHTML + '</div>';
+      } else {
+        viewW = scene.width * s; viewH = (pg.head + pg.f1 - pg.f0) * s;
+        inner = '<div style="position:absolute;left:0;top:' + (-shift) + 'px;width:' + scene.width + 'px;height:' + scene.height + 'px">' + diagramHTML + '</div>' +
+          (layered ? '' : '<div style="position:absolute;left:0;top:0;width:' + scene.width + 'px;height:' + scene.T0 + 'px;overflow:hidden">' + diagramHTML + '</div>');
+      }
+      var marks = [];
+      scene.edges.forEach(function (e) {
+        var a = pageOf(e.from), b = pageOf(e.to);
+        if (a === b || a < 0 || b < 0) return;
+        var bound = (a === pi) ? (b > a ? pg.f1 : pg.f0) : (b === pi ? (a < b ? pg.f0 : pg.f1) : null);
+        if (bound == null) return;
+        var pts = e.points, cross = null;
+        for (var k = 0; k < pts.length - 1 && !cross; k++) {
+          var p = pts[k], q = pts[k + 1];
+          var fp = hFlow ? p.x : p.y, fq = hFlow ? q.x : q.y;
+          if ((fp - bound) * (fq - bound) <= 0 && fp !== fq) cross = hFlow ? { x: bound, y: p.y } : { x: p.x, y: bound };
+        }
+        if (!cross) return;
+        var other = a === pi ? b : a;
+        var fx = hFlow ? (cross.x - shift) * s : cross.x * s, fy = hFlow ? cross.y * s : (cross.y - shift) * s;
+        var atEnd = (a === pi && b > a) || (b === pi && a > b);
+        var outgoing = a === pi;
+        var label = (atEnd === outgoing) ? 'p.' + (pageBase + other + 1) + ' →' : '← p.' + (pageBase + other + 1);
+        var title = (a === pi ? 'Continues on page ' : 'Comes from page ') + (pageBase + other + 1);
+        var mx, my;
+        if (hFlow) { mx = atEnd ? m + viewW + 3 : m + pg.head * s - 22; my = top + fy - 8; }
+        else { mx = m + fx + 4; my = atEnd ? top + viewH + 3 : top + pg.head * s - 10; }
+        marks.push('<span class="sl-page-cont" title="' + title + '" style="left:' + Math.round(mx) + 'px;top:' + Math.round(my) + 'px">' + label + '</span>');
+      });
+      var extra = (vIdx === 0 && pi === 0) ? '<div style="position:absolute;left:' + m + 'px;right:' + m + 'px;top:' + (m + headH) + 'px;height:' + (firstExtra - 10) + 'px;overflow:hidden">' +
+        (meta.subtitle ? '<p class="sl-subtitle" style="font-size:13px;line-height:18px;margin:0 0 6px">' + esc(meta.subtitle) + '</p>' : '') + legendHTML() + '</div>' : '';
+      pages.push('<div class="sl-page" style="width:' + pw + 'px;height:' + ph + 'px;--pm:' + m + 'px"><div class="sl-page-head"><b>' + esc(meta.title || '') + (viewSpecs.length > 1 ? ' · ' + esc(viewTitles[vIdx]) : '') + '</b><span>Page ' + (pi + 1) + ' of ' + total + '</span></div>' + extra +
+        '<div class="sl-page-view" style="left:' + m + 'px;top:' + top + 'px;width:' + Math.ceil(viewW) + 'px;height:' + Math.ceil(viewH) + 'px"><div style="position:absolute;left:0;top:0;transform:scale(' + s + ');transform-origin:0 0;width:' + ((hFlow ? pg.head + pg.f1 - pg.f0 : scene.width)) + 'px;height:' + (hFlow ? scene.height : pg.head + pg.f1 - pg.f0) + 'px;overflow:hidden">' + inner + '</div></div>' + marks.join('') + '</div>');
+    });
+      pageBase += plan.pages.length;
+      if (plan.warnings.length && window.console) console.warn(plan.warnings.join(' '));
+    });
+    layoutSpec = viewSpecs[state.view]; model = allModels[state.view];
+    root.innerHTML = '<div class="sl-sheet" style="--sheet-w:' + (pw + 64) + 'px">' + toolbarHTML().replace(/<button[^>]*data-act="fit"[^>]*>[^<]*<\/button>/, '') + '<div class="sl-pages">' + pages.join('') + '</div></div>';
+    flowSectionsIntoPages(pw, ph, m, headH);
+    printStyle.textContent = '@page { size: ' + pw + 'px ' + ph + 'px; margin: 0 }';
+
+  }
+  function flowSectionsIntoPages(pw, ph, m, headH) {
+    var holder = root.querySelector('.sl-pages');
+    var blocks = (spec.sections || []).map(function (s, i) { return sectionHTML(Object.assign({}, s, { collapsible: false, hideable: false }), i); });
+    blocks.push(footHTML());
+    if (!blocks.length) return;
+    var pageNo = holder.children.length;
+    var page = null, flow = null;
+    function newPage() {
+      pageNo += 1;
+      var div = document.createElement('div');
+      div.className = 'sl-page';
+      div.style.width = pw + 'px'; div.style.height = ph + 'px'; div.style.setProperty('--pm', m + 'px');
+      div.innerHTML = '<div class="sl-page-head"><b>' + esc(meta.title || '') + '</b><span>Page ' + pageNo + '</span></div><div class="sl-page-flow" style="top:' + (m + headH) + 'px"></div>';
+      holder.appendChild(div);
+      page = div; flow = div.querySelector('.sl-page-flow');
+    }
+    newPage();
+    blocks.forEach(function (html) {
+      var wrap = document.createElement('div');
+      wrap.style.marginBottom = '16px';
+      wrap.innerHTML = html;
+      flow.appendChild(wrap);
+      if (flow.scrollHeight > flow.clientHeight + 1 && flow.children.length > 1) {
+        flow.removeChild(wrap); newPage(); flow.appendChild(wrap);
+      }
+      if (flow.scrollHeight > flow.clientHeight + 1) {
+        var sc = flow.clientHeight / wrap.scrollHeight;
+        wrap.style.transformOrigin = '0 0'; wrap.style.transform = 'scale(' + Math.max(0.5, sc) + ')';
+        wrap.style.width = (100 / Math.max(0.5, sc)) + '%';
+      }
+    });
+    var count = holder.children.length;
+    holder.querySelectorAll('.sl-page-head span').forEach(function (sp, i) { sp.textContent = 'Page ' + (i + 1) + ' of ' + count; });
+  }
+
+  var tourEl = document.createElement('section');
+  tourEl.className = 'sl-tour'; tourEl.hidden = true; tourEl.setAttribute('aria-label', 'Walkthrough');
+  document.body.appendChild(tourEl);
+  function tourSteps() {
+    if ((spec.walkthrough || []).length) return spec.walkthrough;
+    var led = (spec.sections || []).filter(function (x) { return x.type === 'ledger'; })[0];
+    if (led && (led.steps || []).some(function (x) { return x.stage; })) return led.steps.filter(function (x) { return x.stage; });
+    return allModels[0].layout === 'layered' ? [] : allModels[0].stages.map(function (x) { return { stage: x.id, title: x.label, text: x.descriptor }; });
+  }
+  function markStage(sid) {
+    var idx = model.stageIdx[sid];
+    root.querySelectorAll('.sl-stage').forEach(function (el, i) { el.classList.toggle('sl-stage-on', i === idx); });
+  }
+  function openTour(i) {
+    var steps = tourSteps();
+    if (!steps.length) return;
+    i = Math.max(0, Math.min(steps.length - 1, i));
+    var st = steps[i];
+    var vi = st.view == null ? 0 : st.view;
+    if (vi !== state.view) setView(vi, true);
+    state.tourIndex = i; state.tourStage = st.stage || null;
+    var ids = {};
+    (st.cards && st.cards.length ? st.cards : model.cards.filter(function (c) { return st.stage && c.stage === st.stage; }).map(function (c) { return c.id; })).forEach(function (id) { ids[id] = true; });
+    state.tourCards = Object.keys(ids).length ? ids : null;
+    panel.hidden = true; state.selected = null;
+    refreshClasses();
+    if (st.stage) markStage(st.stage);
+    var rows = (st.rows || []).map(rowHTML).join('');
+    tourEl.innerHTML = '<div class="sl-tour-head"><span class="sl-tour-count">Step ' + (i + 1) + ' of ' + steps.length + '</span><b>' + esc(st.title || '') + '</b>' + supLinks(st.sources) +
+      '<span class="sl-tour-nav"><button type="button" class="sl-btn" data-tour="prev"' + (i === 0 ? ' disabled' : '') + '>Previous</button><button type="button" class="sl-btn" data-tour="next"' + (i === steps.length - 1 ? ' disabled' : '') + '>Next</button><button type="button" class="sl-btn" data-tour="close" aria-label="Close walkthrough">Close</button></span></div>' +
+      (st.records ? '<div class="sl-ledger-records">' + esc(st.records) + '</div>' : '') + (st.text ? '<p class="sl-tour-text">' + esc(st.text) + '</p>' : '') +
+      (rows ? '<div class="sl-tour-rows">' + rows + '</div>' : '') + (st.note ? '<div class="sl-ledger-records">' + esc(st.note) + '</div>' : '');
+    tourEl.hidden = false;
+    var first = root.querySelector('.sl-zoom .sl-card:not(.sl-dim)');
+    if (first && scrollEl) {
+      var r = first.getBoundingClientRect(), sr = scrollEl.getBoundingClientRect();
+      if (r.left < sr.left + 220 || r.right > sr.right) scrollEl.scrollLeft += r.left - sr.left - 240;
+    }
+  }
+  function closeTour(silent) {
+    tourEl.hidden = true; state.tourCards = null; state.tourStage = null;
+    root.querySelectorAll('.sl-stage-on').forEach(function (el) { el.classList.remove('sl-stage-on'); });
+    if (!silent) refreshClasses();
+  }
+  function setView(i, keepTour) {
+    if (i === state.view || !viewSpecs[i]) return;
+    if (!keepTour) closeTour(true);
+    state.view = i; layoutSpec = viewSpecs[i]; model = allModels[i];
+    state.collapsed = Object.assign({}, collapsedDefaults[i]); state.selected = null; state.path = null;
+    panel.hidden = true;
+    SL.model = model; SL.activeSpec = layoutSpec; SL.viewTitle = viewTitles[i];
+    root.querySelectorAll('[data-view]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-view') === i)); });
+    if (!paged) { renderViewTools(); renderDiagram(); syncToolbar(); }
+  }
+  function jumpTargets() {
+    var j = [];
+    if (viewSpecs.length > 1) viewTitles.forEach(function (t, i) { j.push({ v: 'view:' + i, t: 'View: ' + t }); });
+    (spec.sections || []).forEach(function (s2, i) { if (s2.title) j.push({ v: 'sec:' + (s2.id || ('s' + i)), t: s2.title }); });
+    return j;
+  }
+  window.addEventListener('afterprint', function () { var pv = root.querySelector('.sl-print-views'); if (pv) pv.remove(); });
+  function printOtherViews() {
+    if (paged || viewSpecs.length < 2 || !scrollEl) return;
+    var old = root.querySelector('.sl-print-views'); if (old) old.remove();
+    var box = document.createElement('div'); box.className = 'sl-print-views';
+    box.innerHTML = viewSpecs.map(function (vs, i) {
+      if (i === state.view) return '';
+      var sc = E.computeLayout(vs, {});
+      return '<h2 class="sl-view-title">' + esc(viewTitles[i]) + '</h2><div class="sl-scroll"><div style="position:relative;width:' + sc.width + 'px;height:' + sc.height + 'px">' + E.renderSceneHTML(sc, {}, { interactive: false }) + '</div></div>';
+    }).join('');
+    scrollEl.parentNode.insertBefore(box, scrollEl.nextSibling);
+  }
+
+  function isShared(id) {
+    if (id.indexOf('card:') === 0) return ix.checklistScope === 'shared';
+    var m2 = /^sec:([^:]+):/.exec(id);
+    if (!m2) return false;
+    return (spec.sections || []).some(function (s, i) { return (s.id || ('s' + i)) === m2[1] && s.scope === 'shared'; });
+  }
+  function applyRemoteChecks(map) {
+    Object.keys(state.checks).forEach(function (k) { if (isShared(k) && !map[k]) delete state.checks[k]; });
+    Object.keys(map).forEach(function (k) { if (map[k] && map[k].done) state.checks[k] = true; else delete state.checks[k]; });
+    document.querySelectorAll('[data-check]').forEach(function (inp) {
+      var k = inp.getAttribute('data-check');
+      if (!isShared(k)) return;
+      inp.checked = !!state.checks[k];
+      var item = inp.closest('.sl-check-item');
+      if (item) item.classList.toggle('sl-done', inp.checked);
+    });
+  }
+  SL.allModels = allModels; SL.viewSpecs = viewSpecs; SL.viewTitles = viewTitles; SL.activeSpec = layoutSpec; SL.viewTitle = viewTitles[0]; SL.setView = setView;
+  SL.E = E; SL.spec = spec; SL.model = model; SL.meta = meta; SL.ix = ix; SL.state = state;
+  SL.on = on; SL.emit = emit; SL.isShared = isShared; SL.applyRemoteChecks = applyRemoteChecks;
+  SL.refresh = function () { refreshClasses(); };
+  SL.rerenderSections = function () { if (!paged) renderSections(); };
+  SL.panel = panel; SL.closePanel = closePanel; SL.paged = !!paged;
+
+  if (paged) buildPages(); else buildCanvas();
+  emit('ready', SL);
+  document.documentElement.setAttribute('data-sl-ready', '1');
+})();
+
+</script>
+<script id="sl-caps">
+/*
+ * Create Swimlane Process Maps: artifact capabilities.
+ * Lights up features only when the claude.ai viewer grants them (claude.use(name)
+ * resolves a namespace); everything is hidden when it resolves null. Never runs a
+ * write, prompt or Claude call on load: only on a reader's deliberate click.
+ *   downloads -> Export menu (SVG, PNG, map data, offline copy)
+ *   comments  -> "Comment on this card" (opens the viewer's own composer)
+ *   db + user -> team checklists with who ticked
+ *   sample    -> "Ask about this map"
+ *   artifact  -> quick text edits that publish a new version
+ * Opened as a plain file (no window.claude), exports fall back to normal downloads.
+ */
+(function () {
+  'use strict';
+  var SL = window.SwimlaneRuntime;
+  if (!SL || !SL.E) return;
+  var E = SL.E, esc = E.esc, spec = SL.spec, meta = SL.meta || {}, ix = SL.ix || {};
+  var inViewer = !!(window.claude && typeof window.claude.use === 'function');
+  function use(name) {
+    if (!inViewer) return Promise.resolve(null);
+    try { return Promise.resolve(window.claude.use(name)).catch(function () { return null; }); } catch (e) { return Promise.resolve(null); }
+  }
+  function slug() { return String(meta.title || 'swimlane-map').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'swimlane-map'; }
+  function srcOf(id) { var el = document.getElementById(id); return el ? el.textContent.replace(/^\n/, '').replace(/\n$/, '') : ''; }
+  function documentHTML(s) {
+    return E.assembleDocument({ spec: s || spec, css: srcOf('sl-css'), engine: srcOf('sl-engine'), runtime: srcOf('sl-runtime'), caps: srcOf('sl-caps') });
+  }
+  SL.documentHTML = documentHTML;
+
+  var toastEl = document.createElement('div');
+  toastEl.className = 'sl-toast'; toastEl.setAttribute('role', 'status'); toastEl.hidden = true;
+  document.body.appendChild(toastEl);
+  var toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg; toastEl.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.hidden = true; }, 4000);
+  }
+  function slot() { return document.querySelector('.sl-tb-caps'); }
+  function addToolButton(label, help, onClick) {
+    var host = slot();
+    if (!host) return null;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'sl-btn'; b.textContent = label;
+    if (help) b.setAttribute('data-help', help);
+    b.addEventListener('click', onClick);
+    host.appendChild(b);
+    return b;
+  }
+
+  /* ---------- exports (downloads) ---------- */
+  function svgString() { return E.renderSceneSVG(E.computeLayout(SL.activeSpec || spec, {}), { theme: meta.theme }); }
+  function viewSlug() { return (SL.viewSpecs && SL.viewSpecs.length > 1) ? '-' + String(SL.viewTitle || 'view').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : ''; }
+  function pngBlob() {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () {
+        var k = 2, c = document.createElement('canvas');
+        c.width = Math.ceil(img.width * k); c.height = Math.ceil(img.height * k);
+        var ctx = c.getContext('2d');
+        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(function (b) { if (b) resolve(b); else reject(new Error('png')); }, 'image/png');
+      };
+      img.onerror = function () { reject(new Error('svg')); };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString());
+    });
+  }
+  var downloads = null, exportBtn = null;
+  var SAVE_COPY = {
+    rejected_extension: 'That file type is not allowed here.', extension_not_enabled: 'That format is not available here.',
+    too_large: 'The file is too large for this destination.', rate_limited: 'A save is already waiting for your answer.',
+    bad_request: 'The file could not be prepared.'
+  };
+  function save(filename, data) {
+    if (downloads) {
+      return downloads.save({ filename: filename, data: data }).then(function () { toast('Saved ' + filename); }, function (e) {
+        var code = e && e.code;
+        if (code === 'declined') return;
+        if (['unavailable', 'not_granted', 'capability_disabled', 'capability_removed'].indexOf(code) >= 0) { if (exportBtn) exportBtn.parentNode.style.display = 'none'; toast('Saving files is not available in this view.'); return; }
+        toast(SAVE_COPY[code] || 'The file could not be saved.');
+      });
+    }
+    if (!inViewer) {
+      var blob = data instanceof Blob ? data : new Blob([data]);
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+      return Promise.resolve();
+    }
+    toast('Saving files is not available in this view.');
+    return Promise.resolve();
+  }
+  function setupExports() {
+    if (ix.exports === false) return;
+    var host = slot();
+    if (!host) return;
+    var wrap = document.createElement('span');
+    wrap.className = 'sl-menu-wrap';
+    exportBtn = document.createElement('button');
+    exportBtn.type = 'button'; exportBtn.className = 'sl-btn'; exportBtn.textContent = 'Export';
+    exportBtn.setAttribute('aria-haspopup', 'menu'); exportBtn.setAttribute('aria-expanded', 'false');
+    var menu = document.createElement('div');
+    menu.className = 'sl-menu'; menu.setAttribute('role', 'menu'); menu.hidden = true;
+    var items = [
+      ['svg', 'Diagram as SVG', 'The view on screen; for slides, Confluence or Visio'],
+      ['png', 'Diagram as PNG', 'The view on screen, double resolution'],
+      ['json', 'Map data (JSON)', 'The spec, to rebuild or archive'],
+      ['html', 'Offline copy (HTML)', 'Opens in any browser, no Claude needed']
+    ];
+    menu.innerHTML = items.map(function (it) { return '<button type="button" role="menuitem" data-export="' + it[0] + '"><b>' + esc(it[1]) + '</b><span>' + esc(it[2]) + '</span></button>'; }).join('');
+    wrap.appendChild(exportBtn); wrap.appendChild(menu); host.appendChild(wrap);
+    function close() { menu.hidden = true; exportBtn.setAttribute('aria-expanded', 'false'); }
+    exportBtn.addEventListener('click', function (ev) { ev.stopPropagation(); menu.hidden = !menu.hidden; exportBtn.setAttribute('aria-expanded', String(!menu.hidden)); });
+    document.addEventListener('click', function (ev) { if (!wrap.contains(ev.target)) close(); });
+    menu.addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-export]');
+      if (!b) return;
+      ev.stopPropagation(); close();
+      var kind = b.getAttribute('data-export'), name = slug();
+      if (kind === 'svg') save(name + viewSlug() + '.svg', svgString());
+      else if (kind === 'json') save(name + '.json', JSON.stringify(spec, null, 2));
+      else if (kind === 'html') save(name + '.html', documentHTML());
+      else if (kind === 'png') pngBlob().then(function (blob) { return save(name + viewSlug() + '.png', blob); }, function () { toast('The image could not be drawn here; use SVG instead.'); });
+    });
+  }
+
+  /* ---------- comments: open the viewer's own composer on a card ---------- */
+  var comments = null, commentsOff = false;
+  function setupComments() {
+    SL.on('panel', function (d) {
+      if (!comments || commentsOff || !d.actions || !d.cardEl) return;
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'sl-btn'; b.textContent = 'Comment on this card';
+      b.addEventListener('click', function () {
+        comments.openComposer({ element: d.cardEl }).then(function (r) {
+          if (r && r.opened === false) toast('Click inside the map once, then try again.');
+        }, function (e) {
+          if (e && e.code === 'forbidden') { commentsOff = true; b.remove(); toast('Commenting from the map is off here; use the viewer\u2019s comment button.'); }
+          else toast('The comment box could not open right now.');
+        });
+      });
+      d.actions.appendChild(b);
+    });
+  }
+
+  /* ---------- team checklists (db + user) ---------- */
+  function setupSharedChecks(db, user) {
+    var col = db.collection('checks');
+    function docId(k) { return k.replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 180); }
+    var byKey = {};
+    SL.sharedStore = {
+      set: function (key, done, input) {
+        Promise.resolve(user && user.id ? user.id() : null).then(function (uid) {
+          return col.doc(docId(key)).set({ key: key, done: !!done, by: uid || '', at: Date.now() });
+        }).catch(function (e) {
+          if (input) { input.checked = !done; var it = input.closest('.sl-check-item'); if (it) it.classList.toggle('sl-done', !done); }
+          toast(e && e.code === 'permission_denied' ? 'You can view this checklist but not tick it.' : 'The tick could not be shared right now.');
+        });
+      }
+    };
+    document.querySelectorAll('[data-scope-note="shared"]').forEach(function (n) { n.textContent = 'Ticks are shared with everyone who opens this map.'; });
+    SL.on('sections', function () { paint(); });
+    function paint() {
+      SL.applyRemoteChecks(byKey);
+      var ids = Object.keys(byKey).map(function (k) { return byKey[k].by; }).filter(Boolean);
+      var done = function (ps) {
+        document.querySelectorAll('[data-check-by]').forEach(function (el) {
+          var r = byKey[el.getAttribute('data-check-by')];
+          el.textContent = r && r.done ? ' · ' + ((ps && ps[r.by] && ps[r.by].name) || 'Someone') : '';
+        });
+      };
+      if (user && user.profiles && ids.length) Promise.resolve(user.profiles(ids)).then(done, function () { done(null); });
+      else done(null);
+    }
+    col.onSnapshot(function (snap) {
+      byKey = {};
+      (snap.docs || []).forEach(function (d) { var v = d.data(); if (v && v.key) byKey[v.key] = v; });
+      paint();
+    }, function () { toast('Team ticks could not be loaded; your ticks stay in this browser.'); SL.sharedStore = null; });
+  }
+
+  /* ---------- ask about this map (sample) ---------- */
+  function mapSummary() {
+    var L = [];
+    L.push('Title: ' + (meta.title || ''));
+    if (meta.subtitle) L.push('Summary: ' + meta.subtitle);
+    (SL.allModels || [SL.model]).forEach(function (m, vi) {
+      L.push('', 'VIEW: ' + ((SL.viewTitles || [])[vi] || 'Map'));
+      L.push('Lanes: ' + m.lanes.map(function (l) { return l.label + (l.descriptor ? ' (' + l.descriptor + ')' : ''); }).join('; '));
+      if (m.layout !== 'layered') L.push('Stages in order: ' + m.stages.map(function (s) { return s.label; }).join(' > '));
+      L.push('Cards:');
+      m.cards.forEach(function (c) {
+        var lane = m.lanes[m.laneIdx[c.lane]] || {}, st = m.stages[m.stageIdx[c.stage]] || {};
+        L.push('- ' + c.title + ' [' + (lane.label || '') + (st.label ? ', ' + st.label : '') + ']' + (c.subtitle ? ' ' + c.subtitle : '') +
+          (c.description ? '. ' + c.description : '') + (c.help ? '. Note: ' + c.help : '') + (c.status ? '. Status: ' + c.status : '') +
+          ((c.details || []).length ? '. ' + c.details.map(function (d) { return d.label + ': ' + d.value; }).join('; ') : '') +
+          (c.evidence && c.evidence !== 'confirmed' ? '. Evidence: ' + c.evidence : '') + (c.branch ? '. Branch ' + c.branch : ''));
+      });
+      L.push('Connectors:');
+      m.edges.forEach(function (e) {
+        var a = m.cardMap[e.from], b = m.cardMap[e.to];
+        L.push('- ' + (a ? a.title : e.from) + ' -> ' + (b ? b.title : e.to) + (e.label ? ': ' + e.label : '') + (e.relation ? ' (' + e.relation + ')' : '') + (e.kind !== 'flow' ? ' [' + e.kind + ']' : '') + (e.branch ? ' branch ' + e.branch : '') + (e.evidence && e.evidence !== 'confirmed' ? ' unconfirmed' : ''));
+      });
+    });
+    (spec.branches || []).forEach(function (b) { L.push('Branch ' + b.id + ': ' + b.label + (b.exclusiveWith ? ', cannot coexist with ' + b.exclusiveWith.join(', ') : '')); });
+    (spec.sections || []).forEach(function (s) {
+      L.push('', 'SECTION: ' + (s.title || s.type));
+      (s.steps || []).forEach(function (st) { L.push('- ' + (st.n || '') + ' ' + (st.title || '') + (st.records ? ' (' + st.records + ')' : '')); (st.rows || []).forEach(function (r) { var o = Array.isArray(r) ? { from: r[0], to: r[1], how: r[2], branch: r[3] } : r; L.push('  ' + (o.branch ? o.branch + ': ' : '') + o.from + ' -> ' + o.to + (o.how ? ' (' + o.how + ')' : '')); }); });
+      (s.items || []).forEach(function (it) { if (typeof it === 'string') L.push('- ' + it); else L.push('- ' + [it.lead, it.title, it.term, it.q, it.text, it.definition, it.cause ? 'Cause: ' + it.cause : '', it.fix ? 'Fix: ' + it.fix : '', it.a].filter(Boolean).join(' ')); });
+      (s.rows || []).forEach(function (r) { L.push('- ' + r.join(' | ')); });
+      (s.columns || []).forEach(function (col) { if (col && col.title) L.push('- ' + col.title + ': ' + (col.rows || []).map(function (r) { return r[0] + ' ' + r[1]; }).join('; ')); });
+      if (s.text) L.push(s.text);
+    });
+    var n = spec.notes || {};
+    (n.unconfirmed || []).concat(n.assumptions || []).forEach(function (x) { L.push('Not confirmed: ' + x); });
+    return L.join('\n');
+  }
+  var ASK_COPY = { not_granted: 'Asking Claude is off for this view.', rate_limited: 'Too many questions at once; wait a moment and ask again.' };
+  function setupAsk(sample) {
+    var ctl = null, askBtn = null;
+    askBtn = addToolButton('Ask about this map', 'Ask Claude a question; it answers from this map only, using your own Claude usage', function () {
+      var p = SL.panel;
+      p.innerHTML = '<button type="button" class="sl-btn sl-panel-close" data-act="close-panel">Close</button><div class="sl-overline">Ask about this map</div><h2>What would you like to know?</h2>' +
+        '<p class="sl-sec-intro">Claude answers from this map only. If something is not on the map, it says so.</p>' +
+        '<textarea class="sl-ask-input" rows="3" placeholder="For example: what has to be true before a timecard can be billed?"></textarea>' +
+        '<div class="sl-ask-row"><button type="button" class="sl-btn" data-ask="go">Ask</button><button type="button" class="sl-btn" data-ask="stop" hidden>Stop</button><span class="sl-ask-err" role="alert"></span></div>' +
+        '<div class="sl-ask-out" aria-live="polite"></div>';
+      p.hidden = false;
+      var input = p.querySelector('.sl-ask-input'), out = p.querySelector('.sl-ask-out'), err = p.querySelector('.sl-ask-err');
+      var go = p.querySelector('[data-ask="go"]'), stop = p.querySelector('[data-ask="stop"]');
+      input.focus();
+      input.addEventListener('input', function () { err.textContent = ''; });
+      stop.addEventListener('click', function () { if (ctl) ctl.abort(); });
+      go.addEventListener('click', function () {
+        var q = input.value.trim();
+        if (!q) { err.textContent = 'Type a question first.'; return; }
+        ctl = new AbortController();
+        go.disabled = true; stop.hidden = false; out.textContent = 'Thinking...';
+        var prompt = 'You answer questions about one swimlane process map. Use only the map below. If the map does not say, reply that it is not on the map. ' +
+          'Answer in at most six short sentences or bullets, plain text, no em dashes.\n\nMAP\n' + mapSummary() + '\n\nQUESTION\n' + q;
+        sample(prompt, { signal: ctl.signal, onText: function (x) { out.textContent = x.text; } }).then(function (r) {
+          out.textContent = r.text + (r.truncated ? '\n\n(Cut short; ask about one part at a time.)' : '');
+        }, function (e) {
+          out.textContent = (e && e.text) || '';
+          if (e && e.code === 'not_granted' && askBtn) { askBtn.remove(); }
+          if (!e || e.code !== 'cancelled') err.textContent = ASK_COPY[e && e.code] || 'No answer this time; try again later.';
+        }).then(function () { go.disabled = false; stop.hidden = true; });
+      });
+    });
+  }
+
+  /* ---------- quick text edits (artifact publish) ---------- */
+  function setupQuickEdit(art) {
+    var readOnly = false;
+    SL.on('panel', function (d) {
+      if (readOnly || !d.actions) return;
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'sl-btn'; b.textContent = 'Edit text';
+      b.addEventListener('click', function () { openEditor(d); });
+      d.actions.appendChild(b);
+    });
+    function openEditor(d) {
+      var c = SL.model.cardMap[d.id], src = null;
+      [spec.cards || []].concat((spec.views || []).map(function (v) { return v.cards || []; })).forEach(function (list) { list.forEach(function (x) { if (x.id === d.id) src = x; }); });
+      if (!c || !src) return;
+      var p = d.panel;
+      var f = function (name, label, val, area) {
+        return '<label class="sl-field"><span>' + label + '</span>' + (area ? '<textarea name="' + name + '" rows="3">' + esc(val || '') + '</textarea>' : '<input name="' + name + '" value="' + esc(val || '') + '">') + '</label>';
+      };
+      p.innerHTML = '<button type="button" class="sl-btn sl-panel-close" data-act="close-panel">Close</button><div class="sl-overline">Edit card text</div><h2>' + esc(c.title) + '</h2>' +
+        '<p class="sl-sec-intro">Changes text only; positions stay as they are. Saving publishes a new version of this map for everyone.</p>' +
+        '<form class="sl-edit" novalidate>' + f('title', 'Title', src.title) + f('subtitle', 'Subtitle', src.subtitle) + f('description', 'Description', src.description, true) + f('help', 'Help text', src.help, true) +
+        '<label class="sl-field"><span>Evidence</span><select name="evidence"><option value="confirmed">Confirmed</option><option value="assumed">Assumption</option><option value="unconfirmed">Unconfirmed</option></select></label>' +
+        '<div class="sl-ask-row"><button type="submit" class="sl-btn">Save new version</button><span class="sl-ask-err" role="alert"></span></div></form>';
+      var form = p.querySelector('form'), err = p.querySelector('.sl-ask-err');
+      form.evidence.value = src.evidence || 'confirmed';
+      form.addEventListener('input', function () { err.textContent = ''; });
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var vals = {};
+        ['title', 'subtitle', 'description', 'help', 'evidence'].forEach(function (k) { vals[k] = form[k].value.trim(); });
+        if (!vals.title) { err.textContent = 'A card needs a title.'; return; }
+        if (Object.keys(vals).some(function (k) { return vals[k].indexOf('\u2014') >= 0; })) { err.textContent = 'Em dashes are not used in Cloudmuscle maps; use a colon or comma.'; return; }
+        var next = JSON.parse(JSON.stringify(spec));
+        var nextCards = (next.cards || []).concat.apply(next.cards || [], (next.views || []).map(function (v) { return v.cards || []; }));
+        nextCards.forEach(function (x) {
+          if (x.id !== d.id) return;
+          ['title', 'subtitle', 'description', 'help'].forEach(function (k) { if (vals[k]) x[k] = vals[k]; else delete x[k]; });
+          x.evidence = vals.evidence;
+        });
+        next.meta = next.meta || {};
+        next.meta.lastEdit = { at: new Date().toISOString().slice(0, 10), via: 'quick edit', card: d.id };
+        var btn = form.querySelector('[type="submit"]');
+        btn.disabled = true; btn.textContent = 'Saving...';
+        art.publish(documentHTML(next)).then(function () { toast('Saved. Loading the new version...'); }, function (e) {
+          var code = e && e.code;
+          btn.disabled = false; btn.textContent = 'Save new version';
+          if (code === 'conflict') { toast('Someone saved a newer version first; it is loading now.'); return; }
+          if (['not_writer', 'not_granted', 'consent_required', 'not_declared', 'capability_disabled', 'capability_removed'].indexOf(code) >= 0) {
+            readOnly = true; err.textContent = 'This view is read-only, so changes cannot be saved here.'; return;
+          }
+          err.textContent = code === 'rate_limited' ? 'Saving too often; wait a moment.' : code === 'too_large' ? 'This map is too large to save from the page.' : 'Could not save right now.';
+        });
+      });
+    }
+  }
+
+  /* ---------- light up ---------- */
+  if (!inViewer) { if (ix.exports !== false) setupExports(); return; }
+  if (ix.exports !== false) use('downloads').then(function (d) { if (d) { downloads = d; setupExports(); } });
+  if (ix.comments !== false) use('comments').then(function (c) { if (c) { comments = c; setupComments(); } });
+  var wantsShared = ix.checklistScope === 'shared' || (spec.sections || []).some(function (s) { return s.type === 'checklist' && s.scope === 'shared'; });
+  if (wantsShared) Promise.all([use('db'), use('user')]).then(function (r) { if (r[0]) setupSharedChecks(r[0], r[1]); });
+  if (ix.ask) use('sample').then(function (s) { if (s) setupAsk(s); });
+  if (ix.quickEdit) use('artifact').then(function (a) { if (a) setupQuickEdit(a); });
+})();
+
+</script>
+<script id="gp-tabs-js">
+(function () {
+  var app = document.getElementById('app'), dm = document.getElementById('dm-page');
+  var tf = document.getElementById('gp-tab-flow'), tm = document.getElementById('gp-tab-model');
+  function show(model) {
+    app.hidden = model; dm.hidden = !model;
+    tf.setAttribute('aria-selected', String(!model)); tm.setAttribute('aria-selected', String(model));
+    try { history.replaceState(null, '', model ? '#data-model' : '#process-flow'); } catch (e) {}
+    if (!model) window.dispatchEvent(new Event('resize'));
+  }
+  function syncW() { var sh = app.querySelector('.sl-sheet'); var v = sh && sh.style.getPropertyValue('--sheet-w'); if (v) { document.querySelector('.gp-tabs-wrap').style.setProperty('--sheet-w', v); dm.style.setProperty('--sheet-w', v); } }
+  syncW(); setTimeout(syncW, 300); window.addEventListener('resize', function () { setTimeout(syncW, 50); });
+  tf.addEventListener('click', function () { show(false); });
+  tm.addEventListener('click', function () { show(true); });
+  show(location.hash !== '#process-flow');
+})();
+</script>
+</body>
+</html>
