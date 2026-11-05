@@ -51,6 +51,10 @@
                 <behavior>Edit</behavior>
                 <field>Cancellation_Reason__c</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>GAD_Close_Reason__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns/>
         <style>TwoColumnsTopToBottom</style>

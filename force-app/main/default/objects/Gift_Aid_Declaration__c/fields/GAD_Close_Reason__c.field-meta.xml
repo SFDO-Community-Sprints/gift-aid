@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GAD_Close_Reason__c</fullName>
+    <description>This field is to capture some of the reasons GADs are closed.</description>
+    <inlineHelpText>Select the most appropriate reason for GAD closure</inlineHelpText>
+    <label>GAD Close Reason</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>true</sorted>
+            <value>
+                <fullName>Change Of Circumstances</fullName>
+                <default>false</default>
+                <label>Change Of Circumstances</label>
+            </value>
+            <value>
+                <fullName>Donor Deceased</fullName>
+                <default>false</default>
+                <label>Donor Deceased</label>
+            </value>
+            <value>
+                <fullName>Duplicate GAD</fullName>
+                <default>false</default>
+                <label>Duplicate GAD</label>
+            </value>
+            <value>
+                <fullName>Gone Away</fullName>
+                <default>false</default>
+                <label>Gone Away</label>
+            </value>
+            <value>
+                <fullName>Has Duplicate Commitments</fullName>
+                <default>false</default>
+                <label>Has Duplicate Commitments</label>
+            </value>
+            <value>
+                <fullName>Invalid Declaration</fullName>
+                <default>false</default>
+                <label>Invalid Declaration</label>
+            </value>
+            <value>
+                <fullName>Joint record</fullName>
+                <default>false</default>
+                <label>Joint record</label>
+            </value>
+            <value>
+                <fullName>Non Tax Payer</fullName>
+                <default>false</default>
+                <label>Non Tax Payer</label>
+            </value>
+            <value>
+                <fullName>No Valid Address</fullName>
+                <default>false</default>
+                <label>No Valid Address</label>
+            </value>
+            <value>
+                <fullName>Restricted to Single Gift</fullName>
+                <default>false</default>
+                <label>Restricted to Single Gift</label>
+            </value>
+            <value>
+                <fullName>Set up in error</fullName>
+                <default>false</default>
+                <label>Set up in error</label>
+            </value>
+            <value>
+                <fullName>Unknown/Other</fullName>
+                <default>false</default>
+                <label>Unknown/Other</label>
+            </value>
+            <value>
+                <fullName>Withdrawn by Donor</fullName>
+                <default>false</default>
+                <label>Withdrawn by Donor</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

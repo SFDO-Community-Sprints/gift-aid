@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GiftAidLastConfirmationDate__c</fullName>
+    <inlineHelpText>Last time a Supporter confirm/declares Gift AId. HRMC recommends to confirm details and eligibility every 2 years.</inlineHelpText>
+    <label>Gift Aid Last Confirmation/Declare Date</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Date</type>
+</CustomField>

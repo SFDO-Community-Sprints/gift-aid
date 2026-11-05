@@ -111,8 +111,8 @@
                     <name>uiBehavior</name>
                     <value>none</value>
                 </fieldInstanceProperties>
-                <fieldItem>Record.Cancellation_Reason__c</fieldItem>
-                <identifier>RecordCancellation_Reason__cField</identifier>
+                <fieldItem>Record.GAD_Close_Reason__c</fieldItem>
+                <identifier>RecordGAD_Close_Reason__cField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-d4ce5d42-7e4a-4b07-9b1a-1b2e692c934e</name>

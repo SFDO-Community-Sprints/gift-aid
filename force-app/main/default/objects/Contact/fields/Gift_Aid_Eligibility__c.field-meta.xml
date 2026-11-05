@@ -11,6 +11,6 @@
 !ISBLANK(MailingPostalCode)
 &amp;&amp;
  (MailingCountry = &apos;United Kingdom&apos; || MailingCountry = &apos;UK&apos;)</formula>
-    <label>Gift Aid Eligibility</label>
+    <label>(RESCINDED) Gift Aid Eligibility</label>
     <type>Checkbox</type>
 </CustomField>

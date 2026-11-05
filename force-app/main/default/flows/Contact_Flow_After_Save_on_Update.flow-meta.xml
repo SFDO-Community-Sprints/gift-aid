@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>68.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Blank_Address_received</name>
+        <label>Blank Address received?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Store_new_Address</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Address populated</defaultConnectorLabel>
+        <rules>
+            <name>Blank_empty_Address</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.MailingStreet</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.MailingPostalCode</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.MailingCity</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.MailingState</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.MailingCountry</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Gone_Away_Date</targetReference>
+            </connector>
+            <label>Blank (empty) Address</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>newAddressAsJSON</name>
+        <dataType>String</dataType>
+        <expression>IF(
+  /* ---------- UK branch ---------- */
+  OR(
+    ISBLANK({!$Record.MailingCountry}),
+    CONTAINS(
+      &quot;|UK|U.K.|UNITED KINGDOM|GREAT BRITAIN|GB|GBR|BRITAIN|ENGLAND|SCOTLAND|WALES|NORTHERN IRELAND|&quot;,
+      &quot;|&quot; &amp; UPPER(TRIM({!$Record.MailingCountry})) &amp; &quot;|&quot;
+    )
+  ),
+  &quot;{\&quot;House name or number\&quot;:\&quot;&quot; &amp;
+    SUBSTITUTE(
+      LEFT(
+        TRIM(
+          IF(
+            CONTAINS({!$Record.MailingStreet}, BR()),
+            LEFT({!$Record.MailingStreet}, FIND(BR(), {!$Record.MailingStreet}) - 1),
+            {!$Record.MailingStreet}
+          )
+        ),
+        40
+      ),
+      &quot;\&quot;&quot;, &quot;\\\&quot;&quot;
+    ) &amp;
+  &quot;\&quot;,\&quot;Postcode\&quot;:\&quot;&quot; &amp;
+    IF(
+      LEN(UPPER(SUBSTITUTE(TRIM({!$Record.MailingPostalCode}), &quot; &quot;, &quot;&quot;))) &gt; 3,
+      LEFT(
+        UPPER(SUBSTITUTE(TRIM({!$Record.MailingPostalCode}), &quot; &quot;, &quot;&quot;)),
+        LEN(UPPER(SUBSTITUTE(TRIM({!$Record.MailingPostalCode}), &quot; &quot;, &quot;&quot;))) - 3
+      ) &amp; &quot; &quot; &amp;
+      RIGHT(UPPER(SUBSTITUTE(TRIM({!$Record.MailingPostalCode}), &quot; &quot;, &quot;&quot;)), 3),
+      UPPER(SUBSTITUTE(TRIM({!$Record.MailingPostalCode}), &quot; &quot;, &quot;&quot;))
+    ) &amp;
+  &quot;\&quot;}&quot;,
+
+  /* ---------- Non-UK branch ---------- */
+  &quot;{\&quot;House name or number\&quot;:\&quot;&quot; &amp;
+    SUBSTITUTE(
+      LEFT(
+        TRIM(
+          SUBSTITUTE({!$Record.MailingStreet}, BR(), &quot;, &quot;) &amp;
+          IF(ISBLANK({!$Record.MailingCity}), &quot;&quot;, &quot;, &quot; &amp; {!$Record.MailingCity}) &amp;
+          IF(ISBLANK({!$Record.MailingPostalCode}), &quot;&quot;, &quot;, &quot; &amp; {!$Record.MailingPostalCode}) &amp;
+          IF(ISBLANK({!$Record.MailingCountry}), &quot;&quot;, &quot;, &quot; &amp; {!$Record.MailingCountry})
+        ),
+        40
+      ),
+      &quot;\&quot;&quot;, &quot;\\\&quot;&quot;
+    ) &amp;
+  &quot;\&quot;,\&quot;Postcode\&quot;:\&quot;X\&quot;}&quot;
+)</expression>
+    </formulas>
+    <interviewLabel>Contact Flow (After Save) on Update {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Contact Flow (After Save) on Update</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>End_Active_Gift_Aid_Coverage_Periods</name>
+        <label>End Active Gift Aid Coverage Periods</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ActiveFormula__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Contact__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>EndDate__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>EndReason__c</field>
+            <value>
+                <stringValue>Gone Away</stringValue>
+            </value>
+        </inputAssignments>
+        <object>GiftAidCoveragePeriod__c</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Stored as JSON to consolidated 2 separated columns in a compound field (House Number/name + Postcode)</description>
+        <name>Store_new_Address</name>
+        <label>Store new Address</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>GiftAidClaimableAddress__c</field>
+            <value>
+                <elementReference>newAddressAsJSON</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Sets Last Known Address to the previous Mailing Address.</description>
+        <name>Update_Gone_Away_Date</name>
+        <label>Update &quot;Gone Away&quot; Date</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>End_Active_Gift_Aid_Coverage_Periods</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>AddressGoneAwayDate__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>or</filterLogic>
+        <filters>
+            <field>MailingStreet</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>MailingPostalCode</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>MailingCity</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>MailingState</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>MailingCountry</field>
+            <operator>IsChanged</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Contact</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>Blank_Address_received</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Obsolete</status>
+</Flow>

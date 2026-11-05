@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Set_GAD_Start_Date</name>
+        <label>Set GAD Start Date</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.StartDate__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>EstimatedStartDate</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Is_Start_Date_Blank</name>
+        <label>Is Start Date Blank</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.StartDate__c</leftValueReference>
+                <operator>EqualTo</operator>
+            </conditions>
+            <connector>
+                <targetReference>Get_GACP_Custom_Metadata</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <description>Sets the GACP Start Date based on the custom metadata type value on save.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>EstimatedStartDate</name>
+        <dataType>Date</dataType>
+        <expression>IF(
+    NOT(ISBLANK({!$Record.StartDate__c})),
+    {!$Record.StartDate__c},
+    IF(
+        TEXT({!Get_GACP_Custom_Metadata.Start_Date_Calculation_Rule__c}) = &quot;Rolling 4 Years&quot;,
+        ADDMONTHS({!$Record.DeclarationDate__c}, -48),
+        IF(
+            {!$Record.DeclarationDate__c} &lt; DATE(YEAR({!$Record.DeclarationDate__c}), 4, 6),
+            DATE(YEAR({!$Record.DeclarationDate__c}) - 5, 4, 6),
+            DATE(YEAR({!$Record.DeclarationDate__c}) - 4, 4, 6)
+        )
+    )
+)</expression>
+    </formulas>
+    <interviewLabel>Gift Aid Claim {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Gift Aid Claim Period - BeforeSave</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_GACP_Custom_Metadata</name>
+        <label>Get GACP Custom Metadata</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Set_GAD_Start_Date</targetReference>
+        </connector>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>GACP_Custom_Settings__mdt</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Is_Start_Date_Blank</targetReference>
+        </connector>
+        <object>GiftAidCoveragePeriod__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

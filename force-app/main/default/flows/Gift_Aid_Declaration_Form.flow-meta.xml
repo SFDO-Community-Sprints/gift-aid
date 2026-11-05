@@ -59,7 +59,7 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Create_Gift_Aid</targetReference>
+            <targetReference>Create_Gift_AId_Coverage_Period</targetReference>
         </connector>
     </assignments>
     <constants>
@@ -116,7 +116,7 @@
             <label>Contact Not Found</label>
         </rules>
     </decisions>
-    <description>We recommend committing to an staging object instead of using Contacts directly</description>
+    <description>We recommend committing to an staging object instead of using Contacts directly - Updated to a new object - added validation on Zip/postal code.</description>
     <environments>Default</environments>
     <interviewLabel>Gift Aid Declaration Form {!$Flow.CurrentDateTime}</interviewLabel>
     <isAdditionalPermissionRequiredToRun>true</isAdditionalPermissionRequiredToRun>
@@ -146,39 +146,9 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Create_Gift_Aid</targetReference>
+            <targetReference>Create_Gift_AId_Coverage_Period</targetReference>
         </connector>
-        <faultConnector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Error_Screen</targetReference>
-        </faultConnector>
         <inputReference>contactRecord</inputReference>
-    </recordCreates>
-    <recordCreates>
-        <name>Create_Gift_Aid</name>
-        <label>Create Gift Aid</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <connector>
-            <targetReference>successScreen</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Error_Screen</targetReference>
-        </faultConnector>
-        <inputAssignments>
-            <field>Contact__c</field>
-            <value>
-                <elementReference>contactRecord.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Declaration_Date__c</field>
-            <value>
-                <elementReference>$Flow.CurrentDate</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Gift_Aid_Declaration__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordLookups>
         <name>Get_Exiting_Contact</name>
@@ -189,10 +159,6 @@
         <connector>
             <targetReference>Check_Contact_Found</targetReference>
         </connector>
-        <faultConnector>
-            <isGoTo>true</isGoTo>
-            <targetReference>Error_Screen</targetReference>
-        </faultConnector>
         <filterLogic>or</filterLogic>
         <filters>
             <field>Email</field>
@@ -228,45 +194,6 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <runInMode>SystemModeWithoutSharing</runInMode>
-    <screens>
-        <name>Error_Screen</name>
-        <label>Error Screen</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <allowBack>false</allowBack>
-        <allowFinish>true</allowFinish>
-        <allowPause>false</allowPause>
-        <fields>
-            <name>errorScopeNotification</name>
-            <extensionName>flowruntime:message</extensionName>
-            <fieldType>ComponentInstance</fieldType>
-            <inputParameters>
-                <name>messageType</name>
-                <value>
-                    <stringValue>error</stringValue>
-                </value>
-            </inputParameters>
-            <inputParameters>
-                <name>messageContent</name>
-                <value>
-                    <elementReference>$Flow.FaultMessage</elementReference>
-                </value>
-            </inputParameters>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
-            <isRequired>true</isRequired>
-            <storeOutputAutomatically>true</storeOutputAutomatically>
-            <styleProperties>
-                <verticalAlignment>
-                    <stringValue>top</stringValue>
-                </verticalAlignment>
-                <width>
-                    <stringValue>12</stringValue>
-                </width>
-            </styleProperties>
-        </fields>
-        <showFooter>true</showFooter>
-        <showHeader>true</showHeader>
-    </screens>
     <screens>
         <name>Gift_Aid_Declaration</name>
         <label>Gift Aid Declaration</label>
@@ -438,6 +365,40 @@
                     <stringValue>12</stringValue>
                 </width>
             </styleProperties>
+            <validationRule>
+                <errorMessage>&lt;p&gt;Please enter a valid Postal/Zip code&lt;/p&gt;</errorMessage>
+                <formulaExpression>OR(
+    {!address.country} != &quot;United Kingdom&quot;,
+    REGEX({!address.postalCode}, &quot;^(?i)([A-Z]{1,2}[0-9][A-Z0-9]?\\s?[0-9][A-Z]{2})$&quot;)
+)</formulaExpression>
+            </validationRule>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Security_Warning</name>
+        <label>Security Warning</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Gift_Aid_Declaration</targetReference>
+        </connector>
+        <fields>
+            <name>SecurityWarningText</name>
+            <fieldText>&lt;p&gt;SECURITY WARNING — Gift Aid Declaration Flow&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;This flow is intended only to capture Gift Aid Declaration information and create records.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Do not use this flow to search for, retrieve, or display existing Contact or Lead details based on user-provided information, such as an email address.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Returning existing personal data to a screen may expose personally identifiable information (PII), particularly when the flow is publicly accessible.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Where appropriate, capture submissions in a secure staging object and process them separately. Do not expose existing Contact or Lead details to unauthenticated users.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
@@ -485,10 +446,32 @@
         <locationX>0</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Gift_Aid_Declaration</targetReference>
+            <targetReference>Security_Warning</targetReference>
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>Create_Gift_AId_Coverage_Period</name>
+        <label>Create Gift AId Coverage Period</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>successScreen</targetReference>
+        </connector>
+        <flowName>Gift_Aid_Coverage_Period_Record_Creation</flowName>
+        <inputAssignments>
+            <name>contactDetail</name>
+            <value>
+                <elementReference>contactRecord.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>declarationDate</name>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
     <variables>
         <name>contactRecord</name>
         <dataType>SObject</dataType>

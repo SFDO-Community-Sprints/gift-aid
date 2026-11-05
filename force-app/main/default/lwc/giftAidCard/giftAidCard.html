@@ -1,0 +1,91 @@
+<template>
+    <lightning-card title="GIFT AID" class="custom-card">
+        <!-- Actions Dropdown -->
+        <lightning-button-menu slot="actions" alternative-text="Show actions" menu-alignment="right" onselect={handleMenuSelect}>
+            <lightning-menu-item value="cancel_gift_aid" label="Cancel Gift Aid"></lightning-menu-item>
+        </lightning-button-menu>
+
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+            <!-- Loading Spinner Fallback -->
+            <template lwc:if={isLoading}>
+                <div class="slds-is-relative slds-p-around_large">
+                    <lightning-spinner alternative-text="Loading Gift Aid details" size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Card UI Block -->
+            <template lwc:elseif={contact.data}>
+                <!-- Top-Left Aligned Pill Status Box -->
+                <div class="slds-m-bottom_medium">
+                    <span class={statusPillClass}>
+                        {giftAidStatus}
+                    </span>
+                </div>
+
+                <!-- 100% Native Form Container Layout (Filtering out cancellation fields automatically) -->
+                <template lwc:if={fieldsArray.length}>
+                    <lightning-record-form
+                        record-id={recordId}
+                        object-api-name="Contact"
+                        fields={fieldsArray}
+                        columns="1"
+                        mode="view">
+                    </lightning-record-form>
+                </template>
+            </template>
+            
+            <!-- FIXED: Corrected the lwc:else template wrapper formatting syntax -->
+            <template lwc:else>
+                <div class="slds-text-color_weak slds-p-around_medium">
+                    No fields configured to display.
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+
+    <!-- Cancel Confirmation Entry Popup Layout Modal -->
+    <template lwc:if={isModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeCancelModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small" variant="inverse"></lightning-icon>
+                    </button>
+                    <h2 class="slds-modal__title slds-hyphenate">Cancel Gift Aid</h2>
+                </header>
+                
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-record-edit-form 
+                        object-api-name="Contact"
+                        record-id={recordId}
+                        onsuccess={handleSuccess}
+                        onerror={handleError}>
+                        <lightning-messages></lightning-messages>
+                        
+                        <!-- Native platform date component widget -->
+                        <lightning-input-field 
+                            field-name={cancelDateFieldApi} 
+                            value={selectedDate} 
+                            onchange={handleFieldChange} 
+                            class="date-input">
+                        </lightning-input-field>
+                        
+                        <!-- Native platform picklist context mapping selector dropdown -->
+                        <lightning-input-field 
+                            field-name={cancelReasonFieldApi} 
+                            value={selectedReason} 
+                            onchange={handleFieldChange} 
+                            class="reason-input">
+                        </lightning-input-field>
+                    </lightning-record-edit-form>
+                </div>
+                    
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={closeCancelModal} class="slds-m-right_x-small"></lightning-button>
+                    <lightning-button label="Confirm Cancellation" variant="brand" onclick={handleConfirmCancel} disabled={isButtonDisabled}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Start_Date_Calculation_Rule__c</fullName>
+    <description>Controls the start date calculation logic for Gift Aid declarations. Set to &apos;Rolling 4 Years&apos; to calculate exact dates 4 years prior to the declaration date, or &apos;Tax Years&apos; to align start dates with the UK tax year calendar (April 6th).</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Select &apos;Rolling 4 Years&apos; to calculate the start date exactly 4 years prior to the Declaration Date. Select &apos;Tax Years&apos; to align the start date with the UK tax year calendar (April 6th).</inlineHelpText>
+    <label>Start Date Calculation Rule</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Tax Years</fullName>
+                <default>true</default>
+                <label>Tax Years</label>
+            </value>
+            <value>
+                <fullName>Rolling 4 Years</fullName>
+                <default>false</default>
+                <label>Rolling 4 Years</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

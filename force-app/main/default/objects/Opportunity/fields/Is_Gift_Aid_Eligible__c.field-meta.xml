@@ -9,7 +9,7 @@
 /* 
  &amp;&amp; Campaign.Type = &apos;myType&apos; Use to include only certain Campaign Type as required, eg. exclude Fundraising
 */</formula>
-    <label>Gift Aid Eligible?</label>
+    <label>(RESCINCED) Gift Aid Eligible?</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>

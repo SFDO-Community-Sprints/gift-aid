@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AutoLinkDonations__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>If checked upon record creation, automatically runs the background batch job to find and link all eligible unassigned Opportunities within the Claim Start Date and Claim End Date range. Leave unchecked to manually review the claim first and link donations later via the Quick Action button.</description>
+    <inlineHelpText>When checked, eligible donations matching this claim&apos;s date range are automatically linked upon save. If left unchecked, you can verify your dates first and click &quot;Auto Link Donations&quot; later.</inlineHelpText>
+    <label>Auto Link Donations</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
