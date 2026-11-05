@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://sforce.com">
+    <apiVersion>60.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Contact Gift Aid Summary</masterLabel>
+    <targets>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>Contact</object>
+            </objects>
+            <!-- Removed required="true" to allow a blank deployment -->
+            <property name="fieldSetName" 
+                      type="String" 
+                      label="Gift Aid Field Set Name" 
+                      description="Please enter the exact developer API name of the Contact Field Set (e.g., GiftAidSectionFields)"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

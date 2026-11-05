@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Active_GACP__c</fullName>
+    <description>Indicates whether the record has at least one active Gift Aid Claim Period associated with it.</description>
+    <formula>NumberOfActiveGiftAidClaimPeriods__c &gt; 0</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Active GACP</label>
+    <type>Checkbox</type>
+</CustomField>

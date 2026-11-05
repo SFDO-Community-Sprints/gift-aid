@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Start Date</label>
+    <protected>false</protected>
+    <values>
+        <field>Start_Date_Calculation_Rule__c</field>
+        <value xsi:type="xsd:string">Tax Years</value>
+    </values>
+</CustomMetadata>

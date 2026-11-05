@@ -1,5 +1,5 @@
 {
-  "orgName": "Demo company",
+  "orgName": "Gift Aid Dev",
   "edition": "Developer",
   "features": ["EnableSetPasswordInApi"],
   "settings": {
@@ -8,6 +8,17 @@
     },
     "mobileSettings": {
       "enableS1EncryptedStoragePref2": false
+    }
+  },
+  "objectSettings": {
+    "account": {
+      "defaultRecordType": "default"
+    },
+    "opportunity": {
+      "defaultRecordType": "default"
+    },
+    "campaign": {
+      "defaultRecordType": "default"
     }
   }
 }

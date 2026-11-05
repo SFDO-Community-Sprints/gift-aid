@@ -38,17 +38,7 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>Is_Gift_Aid_Eligible__c</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
             <field>StageName</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>Gift_Aid_Claimed__c</field>
             <table>Opportunity</table>
         </columns>
         <columns>
@@ -508,22 +498,42 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>GiftAidClaimed_Formula__c</field>
+            <field>GiftAidClaim__c</field>
+            <table>Opportunity</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>GiftAidCoveragePeriod__c</field>
+            <table>Opportunity</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Gift_Aid_Claimed_Amount__c</field>
+            <table>Opportunity</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Adjusted_in_Claim__c</field>
+            <table>Opportunity</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Tax__c</field>
+            <table>Opportunity</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Adjustment_Reason__c</field>
+            <table>Opportunity</table>
+        </columns>
+        <columns>
+            <checkedByDefault>false</checkedByDefault>
+            <field>Payment_Method__c</field>
             <table>Opportunity</table>
         </columns>
         <masterLabel>Opportunities</masterLabel>
     </sections>
     <sections>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>Contact.Gift_Aid_End_Date__c</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>Contact.Gift_Aid_Start_Date__c</field>
-            <table>Opportunity</table>
-        </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
             <field>Contact.Gift_Aid_Status__c</field>
@@ -1262,11 +1272,6 @@
         <columns>
             <checkedByDefault>false</checkedByDefault>
             <field>Contact.npe01__WorkPhone__c</field>
-            <table>Opportunity</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
-            <field>Contact.Gift_Aid_Eligibility__c</field>
             <table>Opportunity</table>
         </columns>
         <masterLabel>Contact</masterLabel>

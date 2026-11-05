@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Change Of Circumstances</fullName>
+        <default>false</default>
+        <label>Change Of Circumstances</label>
+    </customValue>
+    <customValue>
+        <fullName>Duplicate GAD</fullName>
+        <default>false</default>
+        <label>Duplicate GAD</label>
+    </customValue>
+    <customValue>
+        <fullName>Gone Away</fullName>
+        <default>false</default>
+        <label>Gone Away</label>
+    </customValue>
+    <customValue>
+        <fullName>Has Duplicate Commitments</fullName>
+        <default>false</default>
+        <label>Has Duplicate Commitments</label>
+    </customValue>
+    <customValue>
+        <fullName>Invalid Declaration</fullName>
+        <default>false</default>
+        <label>Invalid Declaration</label>
+    </customValue>
+    <customValue>
+        <fullName>Joint record</fullName>
+        <default>false</default>
+        <label>Joint record</label>
+    </customValue>
+    <customValue>
+        <fullName>No Valid Address</fullName>
+        <default>false</default>
+        <label>No Valid Address</label>
+    </customValue>
+    <customValue>
+        <fullName>Restricted to Single Gift</fullName>
+        <default>false</default>
+        <label>Restricted to Single Gift</label>
+    </customValue>
+    <customValue>
+        <fullName>Set up in error</fullName>
+        <default>false</default>
+        <label>Set up in error</label>
+    </customValue>
+    <customValue>
+        <fullName>Withdrawn by Donor</fullName>
+        <default>false</default>
+        <label>Withdrawn by Donor</label>
+    </customValue>
+    <masterLabel>Reason</masterLabel>
+    <sorted>true</sorted>
+</GlobalValueSet>

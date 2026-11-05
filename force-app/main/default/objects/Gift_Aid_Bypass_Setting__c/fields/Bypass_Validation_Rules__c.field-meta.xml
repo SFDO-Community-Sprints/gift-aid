@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bypass_Validation_Rules__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>When checked, validation rules referencing this setting are bypassed</description>
+    <inlineHelpText>Check this to bypass validation rules for the org, profile, or user</inlineHelpText>
+    <label>Bypass Validation Rules</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

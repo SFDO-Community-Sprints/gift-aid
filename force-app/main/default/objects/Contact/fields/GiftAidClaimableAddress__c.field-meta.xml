@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GiftAidClaimableAddress__c</fullName>
+    <description>Stores the address used in claims. For UK, only Number or House Name + Postcode is required (postcode is exempted if Isle of Man or Channel Island). For foreign addresses, requires the full address.</description>
+    <inlineHelpText>Contact&apos;s current postal Address or last known address if current is empty.</inlineHelpText>
+    <label>Gift Aid Claimable Address</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>TextArea</type>
+</CustomField>

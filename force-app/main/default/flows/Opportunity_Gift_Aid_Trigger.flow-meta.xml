@@ -20,12 +20,12 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Create_Gift_Aid_Declaration</targetReference>
+                <targetReference>Create_Gift_Aid_Coverage_Period_Record</targetReference>
             </connector>
             <label>No Active Gift Aid Status</label>
         </rules>
     </decisions>
-    <description>Creates a Gift Aid Declaration for the Opp&apos;s Primary Contact</description>
+    <description>Creates a Gift Aid Coverage Period record via subflow</description>
     <environments>Default</environments>
     <interviewLabel>Opportunity - Gift Aid Trigger {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Opportunity - Gift Aid Trigger</label>
@@ -48,45 +48,6 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
-    <recordCreates>
-        <description>Add other fields as required. eg. Declaration Source using Lead Source</description>
-        <name>Create_Gift_Aid_Declaration</name>
-        <label>Create Gift Aid Declaration</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <inputAssignments>
-            <field>Address_City__c</field>
-            <value>
-                <elementReference>$Record.npsp__Primary_Contact__r.MailingCity</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Address_Line_1__c</field>
-            <value>
-                <elementReference>$Record.npsp__Primary_Contact__r.MailingStreet</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Address_Post_Code__c</field>
-            <value>
-                <elementReference>$Record.npsp__Primary_Contact__r.MailingPostalCode</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Contact__c</field>
-            <value>
-                <elementReference>$Record.ContactId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Declaration_Date__c</field>
-            <value>
-                <elementReference>$Record.CloseDate</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Gift_Aid_Declaration__c</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
     <start>
         <locationX>0</locationX>
         <locationY>0</locationY>
@@ -120,4 +81,41 @@
         <triggerType>RecordAfterSave</triggerType>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>Create_Gift_Aid_Coverage_Period_Record</name>
+        <label>Create Gift Aid Coverage Period Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>Gift_Aid_Coverage_Period_Record_Creation</flowName>
+        <inputAssignments>
+            <name>contactDetail</name>
+            <value>
+                <elementReference>$Record.npsp__Primary_Contact__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>declarationDate</name>
+            <value>
+                <elementReference>$Record.CloseDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>mailingCity</name>
+            <value>
+                <elementReference>$Record.npsp__Primary_Contact__r.MailingCity</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>mailingStreet</name>
+            <value>
+                <elementReference>$Record.npsp__Primary_Contact__r.MailingStreet</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>mailingZipCode</name>
+            <value>
+                <elementReference>$Record.npsp__Primary_Contact__r.MailingPostalCode</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
 </Flow>

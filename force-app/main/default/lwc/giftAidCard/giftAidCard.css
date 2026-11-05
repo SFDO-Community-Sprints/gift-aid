@@ -1,0 +1,20 @@
+.custom-card {
+    display: block;
+    background: #ffffff;
+}
+
+/* Reduced small badge styling placed under header */
+.custom-pill-small {
+    padding: 0.15rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+/* Clear high-contrast warning accent fallback for Former status updates */
+.custom-pill-former {
+    background-color: #ff9f43;
+    color: #ffffff;
+}
