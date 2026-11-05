@@ -127,11 +127,6 @@
         </columns>
         <columns>
             <checkedByDefault>false</checkedByDefault>
-            <field>Gift_Aid_Exclusion__c</field>
-            <table>GiftAidClaim__c.Opportunities__r</table>
-        </columns>
-        <columns>
-            <checkedByDefault>false</checkedByDefault>
             <field>Gift_Aid_Claimed_Amount__c</field>
             <table>GiftAidClaim__c.Opportunities__r</table>
         </columns>

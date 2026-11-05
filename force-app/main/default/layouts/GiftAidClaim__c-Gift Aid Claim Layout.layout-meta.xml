@@ -78,10 +78,6 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>EarliestGiftDate__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>SubmittedOn__c</field>
             </layoutItems>
         </layoutColumns>

@@ -23,9 +23,6 @@
         <members>Contact.GiftAidLastConfirmationDate__c</members>
         <members>Contact.Gift_Aid_Cancellation_Date__c</members>
         <members>Contact.Gift_Aid_Cancellation_Reason__c</members>
-        <members>Contact.Gift_Aid_Eligibility__c</members>
-        <members>Contact.Gift_Aid_End_Date__c</members>
-        <members>Contact.Gift_Aid_Start_Date__c</members>
         <members>Contact.Gift_Aid_Status__c</members>
         <members>Contact.NumberOfActiveGiftAidClaimPeriods__c</members>
         <members>Contact.NumberOfEndedGiftAidClaimPeriods__c</members>
@@ -35,10 +32,7 @@
         <members>Opportunity.GiftAidCoveragePeriod__c</members>
         <members>Opportunity.Gift_Aid_Claimed_Amount__c</members>
         <members>Opportunity.Gift_Aid_Claimed_Date__c</members>
-        <members>Opportunity.Gift_Aid_Claimed__c</members>
         <members>Opportunity.Gift_Aid_Declared__c</members>
-        <members>Opportunity.Gift_Aid_Exclusion__c</members>
-        <members>Opportunity.Is_Gift_Aid_Eligible__c</members>
         <members>Opportunity.Payment_Method__c</members>
         <members>Opportunity.Tax__c</members>
         <members>Opportunity.isGiftAidEligible__c</members>
@@ -53,12 +47,10 @@
         <members>GiftAidClaim__c</members>
         <members>GiftAidCoveragePeriod__c</members>
         <members>Gift_Aid_Bypass_Setting__c</members>
-        <members>Gift_Aid_Declaration__c</members>
         <name>CustomObject</name>
     </types>
     <types>
         <members>GiftAidClaim__c</members>
-        <members>Gift_Aid_Declaration__c</members>
         <name>CustomTab</name>
     </types>
     <types>
@@ -67,7 +59,6 @@
     </types>
     <types>
         <members>Contact_Record_Page</members>
-        <members>GAD_LRP</members>
         <members>Opportunity_Record_Page</members>
         <name>FlexiPage</name>
     </types>
@@ -78,11 +69,8 @@
         <members>Gift_Aid_Coverage_Period_AfterSave_Create</members>
         <members>Gift_Aid_Coverage_Period_AfterSave_Update</members>
         <members>Gift_Aid_Coverage_Period_Record_Creation</members>
-        <members>Gift_Aid_Declaration_BeforeSave_Set_GAD_Values</members>
         <members>Gift_Aid_Declaration_Form</members>
-        <members>Gift_Aid_Declaration_Scheduled_Deactivate_on_End_Date</members>
         <members>Gift_Aid_Manage_Postal_Address_Changes</members>
-        <members>Gift_Aid_Record_Creation_Handler_Subflow</members>
         <members>Gift_Aid_Remove_Address_Gone_Away_Date_when_address_is_received</members>
         <members>Opportunity_BeforeSave_Gift_Aid_Eligibilty</members>
         <members>Opportunity_Gift_Aid_Trigger</members>
@@ -97,7 +85,6 @@
         <members>GACP_Custom_Settings__mdt-GAD Custom Setting Layout</members>
         <members>GiftAidClaim__c-Gift Aid Claim Layout</members>
         <members>GiftAidCoveragePeriod__c-Gift Aid Coverage Period Layout</members>
-        <members>Gift_Aid_Declaration__c-Gift Aid Declaration Layout</members>
         <members>Opportunity-Opportunity Layout</members>
         <name>Layout</name>
     </types>

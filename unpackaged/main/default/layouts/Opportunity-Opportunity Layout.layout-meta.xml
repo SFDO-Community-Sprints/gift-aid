@@ -46,10 +46,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Gift_Aid_Exclusion__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>Adjusted_in_Claim__c</field>
             </layoutItems>
             <layoutItems>
@@ -110,10 +106,6 @@
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Gift_Aid_Declared__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Readonly</behavior>
-                <field>Is_Gift_Aid_Eligible__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
