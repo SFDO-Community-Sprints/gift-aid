@@ -16,6 +16,16 @@
                       type="String" 
                       label="Gift Aid Field Set Name" 
                       description="Please enter the exact developer API name of the Contact Field Set (e.g., GiftAidSectionFields)"/>
+            <property name="showAddressInfo"
+                      type="Boolean"
+                      default="false"
+                      label="Show Address Info"
+                      description="When checked, displays the Gift Aid Claimable Address and Address Gone Away Date on the Details tab."/>
+            <property name="showPeriodsTab"
+                      type="Boolean"
+                      default="true"
+                      label="Show Periods Tab"
+                      description="When checked, displays a Periods tab listing the contact's Gift Aid Coverage Periods, so no related list is needed on the page layout."/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

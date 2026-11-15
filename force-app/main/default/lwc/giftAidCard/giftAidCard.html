@@ -1,11 +1,12 @@
 <template>
-    <lightning-card title="GIFT AID" class="custom-card">
+    <lightning-card title="Gift Aid" icon-name="standard:currency">
         <!-- Actions Dropdown -->
+        <!-- The menu button stays focusable; a disabled item states its reason in its label -->
         <lightning-button-menu slot="actions" alternative-text="Show actions" menu-alignment="right" onselect={handleMenuSelect}>
-            <lightning-menu-item value="cancel_gift_aid" label="Cancel Gift Aid"></lightning-menu-item>
+            <lightning-menu-item value="cancel_gift_aid" label={cancelGiftAidLabel} disabled={isCancelGiftAidDisabled}></lightning-menu-item>
         </lightning-button-menu>
 
-        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+        <div class="slds-card__body_inner">
             <!-- Loading Spinner Fallback -->
             <template lwc:if={isLoading}>
                 <div class="slds-is-relative slds-p-around_large">
@@ -13,35 +14,170 @@
                 </div>
             </template>
 
-            <!-- Card UI Block -->
             <template lwc:elseif={contact.data}>
-                <!-- Top-Left Aligned Pill Status Box -->
-                <div class="slds-m-bottom_medium">
-                    <span class={statusPillClass}>
-                        {giftAidStatus}
-                    </span>
-                </div>
-
-                <!-- 100% Native Form Container Layout (Filtering out cancellation fields automatically) -->
-                <template lwc:if={fieldsArray.length}>
-                    <lightning-record-form
-                        record-id={recordId}
-                        object-api-name="Contact"
-                        fields={fieldsArray}
-                        columns="1"
-                        mode="view">
-                    </lightning-record-form>
+                <!-- Status Badge (hidden if the user can't read the status field) -->
+                <template lwc:if={showStatusBadge}>
+                    <div class="slds-m-bottom_small slds-p-left_small slds-p-right_x-small">
+                        <lightning-badge label={giftAidStatusLabel} class={statusBadgeClass}></lightning-badge>
+                    </div>
                 </template>
+
+                <lightning-tabset variant="scoped">
+                    <!-- Details Tab -->
+                    <lightning-tab label="Details" value="details">
+                        <template lwc:if={hasFields}>
+                            <lightning-record-form
+                                record-id={recordId}
+                                object-api-name={contactObjectApi}
+                                fields={fieldsArray}
+                                columns="1"
+                                mode="readonly">
+                            </lightning-record-form>
+                        </template>
+                        <template lwc:elseif={showNoFieldsMessage}>
+                            <div class="slds-text-color_weak slds-p-around_small">
+                                No fields configured to display.
+                            </div>
+                        </template>
+
+                        <!-- Optional Address Info Section -->
+                        <template lwc:if={showAddressInfo}>
+                            <h3 class="slds-text-heading_small slds-m-top_small slds-p-horizontal_xx-small">Address Information</h3>
+                            <lightning-record-view-form record-id={recordId} object-api-name={contactObjectApi}>
+                                <lightning-output-field field-name={claimableAddressFieldApi}></lightning-output-field>
+                                <lightning-output-field field-name={addressGoneAwayDateFieldApi}></lightning-output-field>
+                            </lightning-record-view-form>
+                        </template>
+                    </lightning-tab>
+
+                    <!-- Coverage Periods Tab -->
+                    <template lwc:if={showPeriodsTab}>
+                        <lightning-tab label={periodsTabLabel} value="periods">
+                            <div class="slds-m-bottom_small">
+                                <div class="slds-grid slds-grid_align-end">
+                                    <lightning-button label="New" icon-name="utility:add" onclick={handleNewPeriod} disabled={isNewPeriodDisabled}></lightning-button>
+                                </div>
+                                <!-- Visible reason when New is disabled (shown only once the permission checks finish) -->
+                                <template lwc:if={newPeriodHint}>
+                                    <p class="slds-text-body_small slds-text-color_weak slds-text-align_right slds-m-top_xx-small">{newPeriodHint}</p>
+                                </template>
+                            </div>
+                            <template lwc:if={hasPeriods}>
+                                <ul class="slds-has-dividers_around-space">
+                                    <template for:each={periods} for:item="period">
+                                        <li key={period.id} class="slds-item">
+                                            <article class="slds-tile">
+                                                <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_x-small">
+                                                    <h3 class="slds-tile__title slds-truncate" title={period.name}>
+                                                        <a href={period.recordUrl} data-id={period.id} onclick={handlePeriodLinkClick}>{period.name}</a>
+                                                    </h3>
+                                                    <div class="slds-grid slds-grid_vertical-align-center slds-shrink-none">
+                                                        <!-- Hidden if the user can't read the Active field -->
+                                                        <template lwc:if={period.statusLabel}>
+                                                            <lightning-badge label={period.statusLabel} class={period.statusClass}></lightning-badge>
+                                                        </template>
+                                                        <lightning-button-menu
+                                                            class="slds-m-left_x-small"
+                                                            icon-size="x-small"
+                                                            menu-alignment="right"
+                                                            alternative-text={period.actionsLabel}
+                                                            disabled={period.actionsDisabled}
+                                                            data-id={period.id}
+                                                            data-name={period.name}
+                                                            onselect={handlePeriodAction}>
+                                                            <lightning-menu-item value="edit" label={period.editLabel} disabled={period.editDisabled}></lightning-menu-item>
+                                                            <lightning-menu-item value="delete" label={period.deleteLabel} disabled={period.deleteDisabled}></lightning-menu-item>
+                                                        </lightning-button-menu>
+                                                    </div>
+                                                </div>
+                                                <div class="slds-tile__detail">
+                                                    <dl class="slds-list_horizontal slds-wrap">
+                                                        <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Start Date">Start Date:</dt>
+                                                        <dd class="slds-item_detail slds-truncate">{period.startDate}</dd>
+                                                        <dt class="slds-item_label slds-text-color_weak slds-truncate" title="End Date">End Date:</dt>
+                                                        <dd class="slds-item_detail slds-truncate">{period.endDate}</dd>
+                                                        <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Declaration Date">Declaration Date:</dt>
+                                                        <dd class="slds-item_detail slds-truncate">{period.declarationDate}</dd>
+                                                        <dt class="slds-item_label slds-text-color_weak slds-truncate" title="Source">Source:</dt>
+                                                        <dd class="slds-item_detail slds-truncate">{period.source}</dd>
+                                                        <template lwc:if={period.endReason}>
+                                                            <dt class="slds-item_label slds-text-color_weak slds-truncate" title="End Reason">End Reason:</dt>
+                                                            <dd class="slds-item_detail slds-truncate">{period.endReason}</dd>
+                                                        </template>
+                                                    </dl>
+                                                </div>
+                                            </article>
+                                        </li>
+                                    </template>
+                                </ul>
+                                <!-- More periods than one page: hand off to the standard related list -->
+                                <template lwc:if={hasMorePeriods}>
+                                    <div class="slds-text-align_center slds-p-top_small">
+                                        <lightning-button variant="base" label="View All" title="View all Gift Aid Coverage Periods" onclick={handleViewAllPeriods}></lightning-button>
+                                    </div>
+                                </template>
+                            </template>
+                            <template lwc:else>
+                                <div class="slds-text-color_weak slds-p-around_small">
+                                    No Gift Aid coverage periods found.
+                                </div>
+                            </template>
+                        </lightning-tab>
+                    </template>
+                </lightning-tabset>
             </template>
-            
-            <!-- FIXED: Corrected the lwc:else template wrapper formatting syntax -->
-            <template lwc:else>
-                <div class="slds-text-color_weak slds-p-around_medium">
-                    No fields configured to display.
+
+            <!-- Contact could not be loaded (e.g. no access) -->
+            <template lwc:elseif={contact.error}>
+                <div class="slds-text-color_error slds-p-around_small" role="alert">
+                    Gift Aid details could not be loaded: {contactErrorMessage}
                 </div>
             </template>
         </div>
     </lightning-card>
+
+    <!-- New / Edit Coverage Period Modal -->
+    <template lwc:if={isPeriodModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="period-modal-heading" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closePeriodModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" size="small" variant="inverse"></lightning-icon>
+                    </button>
+                    <h2 id="period-modal-heading" class="slds-modal__title slds-hyphenate">{periodModalTitle}</h2>
+                </header>
+
+                <lightning-record-edit-form
+                    object-api-name={periodObjectApi}
+                    record-id={editingPeriodId}
+                    onsubmit={handlePeriodSubmit}
+                    onsuccess={handlePeriodSuccess}
+                    onerror={handlePeriodError}>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <lightning-messages></lightning-messages>
+                        <!-- Parent Contact is fixed to the current record and not editable here -->
+                        <template lwc:if={isNewPeriod}>
+                            <lightning-input-field field-name={periodContactFieldApi} value={recordId} class="slds-hide"></lightning-input-field>
+                        </template>
+                        <div class="slds-grid slds-wrap slds-gutters_small">
+                            <template for:each={periodFormFields} for:item="cell">
+                                <div key={cell.key} class={cell.cellClass}>
+                                    <template lwc:if={cell.field}>
+                                        <lightning-input-field field-name={cell.field} disabled={cell.disabled}></lightning-input-field>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" onclick={closePeriodModal} class="slds-m-right_x-small"></lightning-button>
+                        <lightning-button label="Save" variant="brand" type="submit" disabled={isSavingPeriod}></lightning-button>
+                    </footer>
+                </lightning-record-edit-form>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
 
     <!-- Cancel Confirmation Entry Popup Layout Modal -->
     <template lwc:if={isModalOpen}>
@@ -53,33 +189,33 @@
                     </button>
                     <h2 class="slds-modal__title slds-hyphenate">Cancel Gift Aid</h2>
                 </header>
-                
+
                 <div class="slds-modal__content slds-p-around_medium">
-                    <lightning-record-edit-form 
-                        object-api-name="Contact"
+                    <lightning-record-edit-form class="cancel-form"
+                        object-api-name={contactObjectApi}
                         record-id={recordId}
                         onsuccess={handleSuccess}
                         onerror={handleError}>
                         <lightning-messages></lightning-messages>
-                        
+
                         <!-- Native platform date component widget -->
-                        <lightning-input-field 
-                            field-name={cancelDateFieldApi} 
-                            value={selectedDate} 
-                            onchange={handleFieldChange} 
+                        <lightning-input-field
+                            field-name={cancelDateFieldApi}
+                            value={selectedDate}
+                            onchange={handleFieldChange}
                             class="date-input">
                         </lightning-input-field>
-                        
+
                         <!-- Native platform picklist context mapping selector dropdown -->
-                        <lightning-input-field 
-                            field-name={cancelReasonFieldApi} 
-                            value={selectedReason} 
-                            onchange={handleFieldChange} 
+                        <lightning-input-field
+                            field-name={cancelReasonFieldApi}
+                            value={selectedReason}
+                            onchange={handleFieldChange}
                             class="reason-input">
                         </lightning-input-field>
                     </lightning-record-edit-form>
                 </div>
-                    
+
                 <footer class="slds-modal__footer">
                     <lightning-button label="Cancel" onclick={closeCancelModal} class="slds-m-right_x-small"></lightning-button>
                     <lightning-button label="Confirm Cancellation" variant="brand" onclick={handleConfirmCancel} disabled={isButtonDisabled}></lightning-button>

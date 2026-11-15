@@ -7,6 +7,8 @@
         <members>GiftAidClaimService</members>
         <members>GiftAidClaim_TDTM</members>
         <members>GiftAidClaim_TDTMTest</members>
+        <members>GiftAidCoveragePeriodController</members>
+        <members>GiftAidCoveragePeriodControllerTest</members>
         <members>GiftAidFieldSetController</members>
         <members>GiftAidFieldSetControllerTest</members>
         <members>GiftAidOpportunityService</members>
