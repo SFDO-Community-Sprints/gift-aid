@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GA_Claim_Compact_Layout</fullName>
+    <fields>Name</fields>
+    <fields>Status__c</fields>
+    <fields>ClaimStartDate__c</fields>
+    <fields>ClaimEndDate__c</fields>
+    <fields>TotalDonationsAmount__c</fields>
+    <fields>ExpectedGiftAid__c</fields>
+    <fields>LineCount__c</fields>
+    <fields>SubmittedOn__c</fields>
+    <label>GA Claim Compact Layout</label>
+</CompactLayout>
